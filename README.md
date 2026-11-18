@@ -1,4 +1,4 @@
-# Plainer
+# Bite-sized Privacy Policy
 
 A concept for helping people understand a privacy policy or contract, record their reactions to individual provisions, and leave with a decision report grounded in the original document.
 
@@ -6,11 +6,11 @@ A concept for helping people understand a privacy policy or contract, record the
 
 The [private hosted prototype](https://bite-sized-privacy-jcw.foggypanda2049.chatgpt.site) is the November 12 source-first version. A newer **local flow** now connects a redesigned entry experience, policy import, extracted-text preview, server-side LLM claim generation, browser reactions, and the report. The local flow has not yet been deployed to the hosted Site.
 
-The entry screen offers three familiar policies or “Use my own policy.” The latter expands to show Upload, Paste, and URL tabs; file upload accepts PDF, DOCX, TXT, or RTF through a chooser or drop zone. After checking the extracted text, the flow continues to optional topic priorities, source-linked claims, reactions, checkpoints, and a personal report. Reviews autosave in that browser, including the current checkpoint. The fictional sample has 11 exact-passage points in the hosted version.
+The entry screen offers three familiar policies or “Use my own policy.” Featured choices open saved user overviews directly. The own-policy path opens Upload, Paste, and URL tabs; file upload accepts PDF, DOCX, TXT, or RTF through a chooser or drop zone. After checking the extracted text and choosing a reading mode, the flow continues to a topic map, source-linked claims, reactions, checkpoints, and a personal report. Reviews autosave in that browser, including the current checkpoint. The fictional sample has 11 exact-passage points in the hosted version.
 
 ### Homepage visual studies
 
-The local [concept gallery](app/concepts.html) explores three **visual-only** homepage directions: Clear, Grounded, and Signal. With the local server running, open `/concepts.html` (for example, `http://localhost:4175/concepts.html`). The gallery is separate from the working intake; no direction has been selected or applied to the product yet.
+The local [concept gallery](app/concepts.html) explores four **visual-only** homepage directions: Open File (clarity), Spotlight (agency), Margin Notes (context), and Plain Talk (approachability). Each has a different composition, type treatment, and palette, with a mission rationale and a tradeoff to consider. With the local server running, open `/concepts.html` (for example, `http://localhost:4175/concepts.html`). The gallery is separate from the working intake; no direction has been selected or applied to the product yet.
 
 **Hosted prototype extraction limit:** the published first version organizes exact passages using keyword-based topics. The local flow generates plain-language model claims and links them to exact quotes, but those paraphrases have not been legally verified. Topic assignment and attention cues remain imperfect navigation aids.
 
@@ -25,7 +25,7 @@ npm test
 npm run build
 ```
 
-`app/` is the dedicated Sites source checkout. `scripts/build.mjs` copies the runtime files into `app/dist/`; the hosting manifest is `app/.openai/hosting.json`. The current hosted Site is static and does not run the local Node API. Root-level scripts and tests stay in this project.
+`app/` is the dedicated Sites source checkout. `scripts/build.mjs` copies the runtime files and saved featured policies into `app/dist/`; the hosting manifest is `app/.openai/hosting.json`. The current hosted Site is static and does not run the local Node API. Root-level scripts and tests stay in this project.
 
 For the connected local flow, supply `OPENAI_API_KEY` to the process environment and run `npm run dev`. The authorized ad-detection `.env` can be passed to Node locally with `node --env-file=/absolute/path/to/ad-detection/.env scripts/serve.mjs`. The key stays on the server and must not be copied into browser code or this repository. If port 4173 is already in use, set `PORT=4174` before the command.
 
@@ -99,3 +99,11 @@ Start with a consumer app privacy policy. Use an overview → preference setup �
 3. Evaluate cross-clause relationships, category accuracy, and comprehension with real policies when UX direction is settled.
 
 The new local LLM tooling uses the OpenAI Responses API with structured outputs. The deployed browser app still uses its earlier keyword grouping. Keep API credentials and private policy files outside Git. See [tooling](tooling/README.md).
+
+## Reading modes and saved featured policies (November 18)
+
+The separate `codex/reading-modes-saved` worktree adds two reading paths. **User mode** selects a small set of plain-language takeaways, with exact source anchors and an explicit notice that remaining source units are not summarized. **Lawyer mode** keeps detailed clause-by-clause claims and exact-source fallbacks. Both retain the full policy. The topic screen offers a direct full-policy view and a path to change modes. Claims in either mode remain unverified paraphrases.
+
+The three homepage policies are saved as versioned JSON files in `app/data/featured/`, with both modes and the source text captured on November 18, 2026. Selecting one opens its saved user overview directly, with no fetch or model call. Changing modes reads the saved detailed analysis. These files are copied into `app/dist/` by the build, so the featured path does not need the local API. Their source date is shown in the interface because policies can change. To deliberately refresh the saved snapshots, run `npm run save-featured` with `OPENAI_API_KEY` in the process environment; pass a featured ID to refresh one policy. A failed refresh leaves its previous file intact.
+
+For policies people add themselves, the server still imports the source and calls the model. Model groups now run with up to four requests in parallel. The static hosted Site has not been updated with this worktree, and its own-policy LLM path still needs a server-backed deployment. See [the experiment record](portfolio-docs/experiments.md#e07--reading-modes-and-featured-policy-cache) for observed card counts and timing; these are engineering checks, not a measure of comprehension or legal fidelity.

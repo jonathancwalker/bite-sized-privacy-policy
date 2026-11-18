@@ -7,8 +7,8 @@ import { intelligentDecompose } from '../tooling/llm-decompose.mjs';
 import { POLICY_CATALOG } from '../tooling/catalog.mjs';
 
 const root = fileURLToPath(new URL('../app/', import.meta.url));
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8' };
-const assets = new Set(['index.html', 'styles.css', 'app.js', 'engine.js', 'concepts.html', 'concepts.css', 'concepts.js']);
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
+const assets = new Set(['index.html', 'styles.css', 'app.js', 'engine.js', 'concepts.html', 'concepts.css', 'concepts.js', ...['meta','tiktok-us','youtube-google'].map(id=>`data/featured/${id}.json`)]);
 const MAX_TEXT_CHARS = 80_000;
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 const MAX_JSON_BYTES = 17_500_000; // 12 MiB file encoded as base64, plus JSON metadata.
@@ -101,8 +101,10 @@ async function handle(req, res, { apiKey, ingest, decompose } = {}) {
       const body = await readJson(req);
       const title = optionalTitle(body.title) || 'Privacy policy';
       const text = limitedText(body.text);
+      const mode = body.mode == null ? 'user' : body.mode;
+      if (!['user','lawyer'].includes(mode)) throw new HttpError(400, 'INVALID_MODE', 'Choose user or lawyer mode.');
       if (!apiKey) throw new HttpError(503, 'MODEL_UNAVAILABLE', 'Intelligent parsing is unavailable in this local run. Restart the server with OPENAI_API_KEY set.');
-      const analysis = await (decompose || intelligentDecompose)({ title, text, source:body.source?.finalUrl || body.source?.kind || '' }, { apiKey });
+      const analysis = await (decompose || intelligentDecompose)({ title, text, source:body.source?.finalUrl || body.source?.kind || '' }, { apiKey, mode });
       return json(res, 200, { analysis });
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'This route does not accept that request method.');

@@ -9,7 +9,7 @@ Help people understand long policies through source-linked points, progressive r
 Capture: active  
 Audience: general portfolio; refine when known  
 Visuals: create when they explain the work  
-Last substantive capture: 2026-11-17 — homepage visual language exploration
+Last substantive capture: 2026-11-18 — reading modes and cache experiment
 
 ## Start here
 
@@ -37,3 +37,4 @@ Keep new work current at meaningful checkpoints. Add evidence before replacing u
 - [Connected local flow milestone](journal/2026-11-17-flow-integration.md)
 - [Entry UX reset](journal/2026-11-17-entry-ux-reset.md)
 - [Homepage visual language exploration](journal/2026-11-17-visual-language-exploration.md)
+- [Reading modes and featured-policy cache](journal/2026-11-18-reading-modes-cache.md)

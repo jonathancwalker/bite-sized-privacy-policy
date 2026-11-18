@@ -45,3 +45,17 @@ test('context quote must belong to the cited adjacent unit',()=>{
   const proposed={claims:[{unitId:unit.id,claim:'You may request data.',sourceQuote:'You may request a copy of your account data.',contextUnitId:'unit-999',contextQuote:'Data retention',qualifiers:[]}]};
   assert.equal(validateClaims(base,proposed).rejected[0].reason,'invalid-context-link');
 });
+test('user overview caps cards per group while groups run concurrently', async()=>{
+  const longText=Array.from({length:70},(_,i)=>`Section ${i+1}\n\nWe collect account detail ${i+1} when you use this feature, unless you disable it in settings.\n\n`).join('');
+  let active=0, peak=0, groups=0;
+  const result=await intelligentDecompose({text:longText},{mode:'user',concurrency:3,propose:async ({units})=>{
+    groups++;active++;peak=Math.max(peak,active);
+    await new Promise(resolve=>setTimeout(resolve,10));active--;
+    return {claims:units.slice(0,4).map(unit=>({unitId:unit.id,claim:'The service collects account details for a feature unless you disable it.',sourceQuote:unit.text.trim().slice(0,Math.min(65,unit.text.trim().length)),contextUnitId:'',contextQuote:'',qualifiers:[]})),nonClaimUnits:[]};
+  }});
+  assert.ok(groups>1);
+  assert.ok(peak>1);
+  assert.ok(result.claims.length<=2*groups);
+  assert.equal(result.status,'selective_overview');
+  assert.ok(result.unclaimedUnitIds.length>0);
+});

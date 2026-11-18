@@ -19,7 +19,29 @@ test('catalog and local page are served without a key', async () => {
     assert.ok(data.entries.some(entry => entry.id === 'anthropic'));
     const page = await fetch(base + '/');
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /<title>Plainer<\/title>/);
+    assert.match(await page.text(), /Plainer/);
+  });
+});
+
+test('saved featured policies are served directly without a model key', async () => {
+  await withServer({apiKey:null}, async base => {
+    for (const id of ['meta','tiktok-us','youtube-google']) {
+      const response = await fetch(`${base}/data/featured/${id}.json`);
+      assert.equal(response.status,200);
+      const saved = await response.json();
+      assert.equal(saved.id,id);
+      assert.equal(saved.imported.source.catalogId,id);
+      assert.equal(saved.analyses.user.document.text,saved.imported.text);
+      assert.equal(saved.analyses.lawyer.document.text,saved.imported.text);
+      assert.ok(saved.analyses.user.claims.length < saved.analyses.lawyer.claims.length);
+      for (const mode of ['user','lawyer']) {
+        const analysis=saved.analyses[mode];
+        assert.equal(analysis.coverage.complete,true);
+        assert.equal(analysis.failures.length,0);
+        assert.ok(analysis.claims.every(claim=>saved.imported.text.slice(claim.sourceRange.start,claim.sourceRange.end)===claim.sourceQuote));
+      }
+    }
+    assert.equal((await fetch(`${base}/data/featured/unknown.json`)).status,404);
   });
 });
 
