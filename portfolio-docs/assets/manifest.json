@@ -5,7 +5,7 @@
     "kind": "Explanatory diagram",
     "caption": "A backfill explanation of the documented design; not a product screenshot or measured result.",
     "usage": "Ready as a labeled explanatory graphic; preserve the caption.",
-    "provenance": "Created by Codex on 2026-11-12 from the source documents cited in this project’s records.",
+    "provenance": "Created by Codex on 2026-11-12 from the source documents cited in this project\u2019s records.",
     "alt": "A backfill explanation of the documented design; not a product screenshot or measured result."
   },
   {
@@ -14,7 +14,7 @@
     "kind": "Explanatory diagram",
     "caption": "A backfill explanation of the documented design; not a product screenshot or measured result.",
     "usage": "Ready as a labeled explanatory graphic; preserve the caption.",
-    "provenance": "Created by Codex on 2026-11-12 from the source documents cited in this project’s records.",
+    "provenance": "Created by Codex on 2026-11-12 from the source documents cited in this project\u2019s records.",
     "alt": "A backfill explanation of the documented design; not a product screenshot or measured result."
   },
   {
@@ -277,5 +277,50 @@
     "usage": "Ready as labeled visual concept evidence; not selected or deployed",
     "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
     "alt": "Plain Talk visual study at a 390-pixel width without horizontal overflow."
+  },
+  {
+    "title": "Personal PDF report sample",
+    "file": "assets/exports/2026-11-18-report-pdf-sample.jpg",
+    "kind": "Generated PDF page rendering",
+    "caption": "First page of a three-page sample with synthetic reactions to the saved Instagram overview.",
+    "usage": "Export-layout evidence only; not a browser screenshot or real reader response.",
+    "provenance": "Actual report-pdf.js output rendered with Poppler and inspected on 2026-11-18.",
+    "alt": "Graph-paper margins surround a personal report with priorities, five reaction totals, and a concerned claim with source wording."
+  },
+  {
+    "title": "Homepage before returning to one column",
+    "file": "assets/exports/2026-11-18-home-before-single-column.jpg",
+    "kind": "User-provided product screenshot",
+    "caption": "Two-column homepage with a saved-review sidebar, reaction grid, and blue description stripe.",
+    "usage": "Before-state evidence; not verification of the revised layout.",
+    "provenance": "User-provided screenshot, 2026-11-18.",
+    "alt": "Two-column homepage with a saved-review sidebar, reaction grid, and blue description stripe."
+  },
+  {
+    "title": "Topic map before simplifying its hierarchy",
+    "file": "assets/exports/2026-11-18-topic-map-before-stack.jpg",
+    "kind": "User-provided product screenshot",
+    "caption": "Topic headings and count badges sit beside uneven rows of reaction squares.",
+    "usage": "Before-state evidence; not verification of the revised layout.",
+    "provenance": "User-provided screenshot, 2026-11-18.",
+    "alt": "Topic headings and count badges sit beside uneven rows of reaction squares."
+  },
+  {
+    "title": "PDF download dependency error",
+    "file": "assets/exports/2026-11-18-pdf-bare-import-error.jpg",
+    "kind": "User-provided product screenshot",
+    "caption": "Download PDF reports an unresolved pako module specifier in the browser.",
+    "usage": "Before-state evidence; not verification of the revised layout.",
+    "provenance": "User-provided screenshot, 2026-11-18.",
+    "alt": "Download PDF reports an unresolved pako module specifier in the browser."
+  },
+  {
+    "title": "Attention-only PDF with unreviewed coverage",
+    "file": "assets/exports/2026-11-18-pdf-attention-summary.jpg",
+    "kind": "Generated PDF page rendering",
+    "caption": "Final page of a two-page sample showing an Unsure claim and 2 / 8 claims unreviewed. Responses are synthetic.",
+    "usage": "Export-layout evidence; not a browser screenshot or real reader response.",
+    "provenance": "Static-build report-pdf.js output rendered with Poppler and inspected on 2026-11-18.",
+    "alt": "An Unsure claim and its source wording appear above the report information and a pale-blue unreviewed-count box."
   }
 ]

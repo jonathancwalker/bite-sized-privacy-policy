@@ -154,7 +154,12 @@ function restoreSingleReview(saved) {
   }
   return {
     ...saved, analysis, responses, queue,
-    preferences:Array.isArray(saved.preferences) ? [...new Set(saved.preferences.filter(topic => analysis.topics.includes(topic)))] : [],
+    // Older reviews have no decision history; their existing reactions use source order.
+    responseOrder:[...new Set([
+      ...(Array.isArray(saved.responseOrder)?saved.responseOrder:[]),
+      ...analysis.points.map(point=>point.id)
+    ])].filter(id=>ids.has(id)&&responses[id]?.reaction),
+    preferences:Array.isArray(saved.preferences) ? [...new Set(saved.preferences.filter(topic => Object.hasOwn(TOPICS,topic)))] : [],
     reflection:typeof saved.reflection === 'string' ? saved.reflection : '',
     cursor:Number.isInteger(saved.cursor) ? Math.max(0, Math.min(saved.cursor, (queue?.ids.length || analysis.points.length) - 1)) : 0,
     screen:SCREENS.has(saved.screen) ? saved.screen : 'overview',
@@ -167,7 +172,7 @@ export const reviewDepth = review => review.analysis.readingMode || 'lawyer';
 
 // Only per-depth state belongs here; the policy source remains shared and unchanged.
 function depthSnapshot(review) {
-  const fields = ['analysis','responses','preferences','reflection','cursor','screen','checkpointTopic','queue'];
+  const fields = ['analysis','responses','preferences','reflection','cursor','screen','checkpointTopic','queue','responseOrder'];
   return Object.fromEntries(fields.map(field => [field, review[field]]));
 }
 
@@ -176,7 +181,7 @@ export function switchReviewDepth(review, mode, nextAnalysis = null) {
   if (reviewDepth(review) === mode) return review;
   const depths = {...review.depths, [reviewDepth(review)]:depthSnapshot(review)};
   const target = depths[mode] || (nextAnalysis && {
-    analysis:nextAnalysis, responses:{}, preferences:[], reflection:'', cursor:0,
+    analysis:nextAnalysis, responses:{}, responseOrder:[], preferences:[], reflection:'', cursor:0,
     screen:'review', checkpointTopic:nextAnalysis.topics[0], queue:null
   });
   if (!target || reviewDepth(target) !== mode) throw new Error('Prepare this reading depth first.');

@@ -20,7 +20,7 @@ async function client(saved = null) {
   });
   const source = (await readFile(new URL('./app/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
   vm.runInContext(source, context);
-  return {root, context, events, click:(action,id,detail=1)=>events.get('root:click')({detail,target:{closest:()=>({dataset:{action,id}})}}), run:source => vm.runInContext(source, context)};
+  return {root, context, events, click:(action,id,detail=1,attributes={})=>events.get('root:click')({detail,target:{closest:()=>({dataset:{action,id,...attributes}})}}), run:source => vm.runInContext(source, context)};
 }
 
 const text = 'We delete your account data after 30 days.';
@@ -48,7 +48,7 @@ test('claims with fabricated source positions cannot enter a review', async () =
 test('a valid legacy review keeps its reactions and can resume', async () => {
   const app = await client({version:1, text, title:'Saved policy', responses:{'point-001':{reaction:'concern',note:'Keep this note'}}, preferences:[], createdAt:'2026-11-18T12:00:00Z'});
   assert.equal(app.run('state.responses["point-001"].note'), 'Keep this note');
-  assert.match(app.root.innerHTML, /Resume/);
+  assert.match(app.root.innerHTML, /Continue review/);
 });
 
 test('a checkpoint with a skipped claim does not claim the topic was reviewed', async () => {
@@ -89,10 +89,10 @@ test('saved model reviews from before reading modes keep their notes', async () 
   assert.equal(restored.responses['point-001'].note, 'Earlier note');
 });
 
-test('browser printing expands unfinished claims and restores disclosures afterward', async () => {
+test('browser printing expands attention sources and restores disclosures afterward', async () => {
   const app = await client();
   const disclosures = [{open:false}, {open:true}, {open:false}];
-  app.root.querySelectorAll = selector => selector === '.report-section details' ? disclosures : [];
+  app.root.querySelectorAll = selector => selector === '.attention-panel details' ? disclosures : [];
   app.events.get('beforeprint')?.();
   assert.deepEqual(disclosures.map(item => item.open), [true, true, true]);
   app.events.get('afterprint')?.();
@@ -140,11 +140,13 @@ test('double-click confirms exactly one card and skipped cards remain unfinished
 });
 test('depth labels and report sections are concise', async () => {
   const app = await client(twoCards);
-  const modes = app.run("modeChoice('featured')");
-  assert.match(modes, /User view/);
+  const modes = app.run("modeChoice()");
+  assert.match(modes, /Quick overview/);
+  assert.match(modes, /Lawyer mode/);
+  assert.doesNotMatch(modes, /<small/);
   assert.doesNotMatch(modes, /a few high-level themes|granular claims/);
   const report = app.run('reportView()');
-  assert.match(report, /Left to review/);
+  assert.match(report, /Continue review/);
   assert.doesNotMatch(report, /Back to topic map/);
 });
 
@@ -350,7 +352,7 @@ test('Back to report exits an unsure round immediately without confirming a pend
   app.click('report');
   assert.equal(app.run('screen'),'report');
   assert.equal(app.run('state.responses["point-003"].reaction'),'clarify');
-  assert.match(app.root.innerHTML,/Accepted · 2/);
+  assert.equal(app.run('reactionCounts().comfortable'),2);
 });
 
 test('a review with no unsure cards offers no restart disguised as Revisit cards', async () => {
@@ -358,4 +360,237 @@ test('a review with no unsure cards offers no restart disguised as Revisit cards
   assert.doesNotMatch(app.run('reportView()'),/>Revisit cards<\/button>/);
   app.click('review-unsure');
   assert.equal(app.run('screen'),'report');
+});
+
+test('own-policy intake opens immediately with quick overview selected', async () => {
+  const app=await client();
+  app.click('own');
+  assert.equal(app.run('readingMode'),'user');
+  assert.match(app.root.innerHTML,/id="policy-file"/);
+  assert.match(app.root.innerHTML,/data-mode="user"[^>]*aria-pressed="true"/);
+  assert.doesNotMatch(app.root.innerHTML,/choose-own-mode|How would you like to read it/);
+});
+
+test('changing the intake depth keeps the pasted policy and file ready', async () => {
+  const app=await client();
+  app.run("draft={title:'Retention',text:'We delete account data after 30 days.',url:''}; selectedFile={name:'policy.txt',size:100}; ownOpen=true; inputMode='paste'");
+  app.click('reading-depth',undefined,1,{mode:'lawyer'});
+  assert.equal(app.run('readingMode'),'lawyer');
+  assert.equal(app.run('draft.text'),'We delete account data after 30 days.');
+  assert.equal(app.run('selectedFile.name'),'policy.txt');
+  assert.match(app.root.innerHTML,/data-mode="lawyer"[^>]*aria-pressed="true"/);
+  assert.match(app.root.innerHTML,/id="policy-text"/);
+});
+
+test('one featured-policy click uses the selected depth without an extra gate', async () => {
+  const app=await client();
+  app.run('openFeatured=(id,mode)=>{ globalThis.opened={id,mode}; }');
+  app.click('featured','meta');
+  assert.equal(app.run('opened.id'),'meta');
+  assert.equal(app.run('opened.mode'),'user');
+  app.click('reading-depth',undefined,1,{mode:'lawyer'});
+  app.click('featured','tiktok-us');
+  assert.equal(app.run('opened.mode'),'lawyer');
+});
+
+test('optional intake focus highlights retention without removing other claims', async () => {
+  const app=await client();
+  app.run("intakePreferences=['retention']");
+  app.context.imported={title:'Policy',text:twoCards.text.split('\n\n')[0]+'\n\n'+text,source:{kind:'paste'}};
+  app.run('pending=imported; replaceWithPrepared(analyzePolicy(imported.text))');
+  assert.deepEqual(Array.from(app.run('state.preferences')),['retention']);
+  assert.equal(app.run('points().length'),2);
+  assert.equal(app.run('ordered().length'),2);
+  assert.equal(app.run('current().topic'),'retention');
+  assert.match(app.root.innerHTML,/Your priority/);
+  app.click('skip',undefined,2);
+  assert.doesNotMatch(app.root.innerHTML,/Your priority/);
+});
+
+test('the report map accounts for every claim and distinguishes skipped from unseen', async () => {
+  const app=await client(followUpCards);
+  const html=app.run('reportView()');
+  assert.equal([...html.matchAll(/data-map-id="point-/g)].length,5);
+  for(const [id,status] of [['001','concern'],['002','comfortable'],['003','clarify'],['004','skipped'],['005','unseen']]){
+    assert.match(html,new RegExp('data-map-id="point-'+id+'"[^>]*data-state="'+status+'"'));
+  }
+  app.click('point','point-003');
+  assert.equal(app.run('current().id'),'point-003');
+  app.click('react','comfortable');
+  app.click('report');
+  assert.equal(app.run('state.responses["point-003"].reaction'),'clarify');
+});
+
+test('the report omits Undo while the active review still offers recovery', async () => {
+  const app=await client(twoCards);
+  app.run("setScreen('review')");app.click('react','comfortable');app.click('confirm');
+  assert.match(app.root.innerHTML,/data-action="undo"/);
+  app.click('report');
+  assert.doesNotMatch(app.root.innerHTML,/data-action="undo"/);
+});
+
+test('successful rewording reveals an accuracy note and retains the exact source', async () => {
+  const app=await client();
+  app.context.imported={title:'Policy',text,source:{kind:'paste'}};
+  app.context.prepared=preparedAnalysis(raw,text);
+  app.run('pending=imported; replaceWithPrepared(prepared)');
+  const source=app.run('current().text');
+  assert.doesNotMatch(app.root.innerHTML,/AI Re-phrasing Notice:/);
+  app.context.fetch=async()=>({ok:true,json:async()=>({reworded:'After 30 days, your account information is removed.'})});
+  await app.run('rewordCurrent()');
+  assert.match(app.root.innerHTML,/<strong>AI Re-phrasing Notice:<\/strong><p>AI rewording may change or miss meaning\.<\/p>/);
+  assert.equal(app.run('current().text'),source);
+  assert.equal(app.run('response(current().id).rewording'),'After 30 days, your account information is removed.');
+});
+
+test('advancing from email collection to phone collection keeps the reading position', async () => {
+  const app=await client(twoCards);
+  app.run("setScreen('review')");
+  const scrolls=[];
+  app.context.window.scrollTo=(...args)=>scrolls.push(args);
+  app.click('react','comfortable');
+  app.click('confirm');
+  assert.equal(app.run('cursor'),1);
+  assert.equal(scrolls.length,0,'Next must not jump the page back to the header');
+});
+
+test('the printable report identifies the policy without the app header', async () => {
+  const app=await client(followUpCards);
+  assert.match(app.run('reportView()'),/Contact details/);
+});
+
+test('an own-policy URL failure appears once beside the URL form', async () => {
+  const app=await client();
+  app.run("ownOpen=true; inputMode='url'; importError='This policy page could not be fetched.'; render()");
+  assert.equal(app.root.innerHTML.split('This policy page could not be fetched.').length-1,1);
+});
+
+test('priority areas open a staged modal without disturbing a pasted policy', async () => {
+  const app=await client();
+  const apply={};
+  const retention={dataset:{priority:'retention'},setAttribute(){}};
+  app.context.priorityDialog={querySelector:selector=>selector==='#apply-priorities'?apply:null,querySelectorAll:()=>[retention]};
+  app.run("openModal=html=>{globalThis.modalHTML=html;return priorityDialog;}; closeModal=()=>{}; ownOpen=true;inputMode='paste';draft.text='We delete account data after 30 days.';render()");
+  assert.match(app.root.innerHTML,/data-action="priorities"/);
+  assert.doesNotMatch(app.root.innerHTML,/focus-choices|>Optional</);
+  app.click('priorities');
+  assert.match(app.run('modalHTML'),/Priority areas/);
+  retention.onclick();
+  assert.equal(app.run('intakePreferences.length'),0,'selection stays staged until Done');
+  apply.onclick();
+  assert.deepEqual(Array.from(app.run('intakePreferences')),['retention']);
+  assert.equal(app.run('draft.text'),'We delete account data after 30 days.');
+});
+
+test('lawyer mode changes the explanation below the depth pill', async () => {
+  const app=await client();
+  assert.match(app.root.innerHTML,/The big picture in a handful of cards/);
+  app.click('reading-depth',undefined,1,{mode:'lawyer'});
+  assert.match(app.root.innerHTML,/Lawyer mode/);
+  assert.match(app.root.innerHTML,/More detail, no law degree needed\./);
+  assert.doesNotMatch(app.root.innerHTML,/The big picture in a handful of cards/);
+});
+
+test('the whole saved Instagram card opens its report as one native button', async () => {
+  const app=await client({...twoCards,screen:'report',source:{catalogId:'meta'},responses:{'point-001':{reaction:'comfortable'}}});
+  const card=app.root.innerHTML.match(/<button\b[^>]*class="saved-review"[^>]*>([\s\S]*?)<\/button>/);
+  assert.ok(card,'the entire saved-review card is a native button');
+  assert.match(card[0],/data-action="resume"/);
+  assert.doesNotMatch(card[1],/<(?:button|a)\b/,'no nested interactive controls');
+  assert.match(app.root.innerHTML,/Instagram review/);
+  assert.match(app.root.innerHTML,/<strong>1 \/ 2<\/strong> reviewed/);
+  assert.match(app.root.innerHTML,/Open report/);
+  assert.doesNotMatch(app.root.innerHTML,/Your current review|data-trail-id|resume-sidebar/);
+  assert.ok(app.root.innerHTML.indexOf('policy-logos')<app.root.innerHTML.indexOf('saved-review'));
+  app.click('resume');
+  assert.equal(app.run('screen'),'report');
+});
+
+test('topic groups retain every clickable card without count badges',async()=>{
+  const app=await client(followUpCards);
+  const map=app.run('claimMap()');
+  assert.doesNotMatch(map,/topic-total|aria-label="\d+ claims"/);
+  assert.match(map,/<h3>Data collection<\/h3>/);
+  assert.equal([...map.matchAll(/data-map-id="point-/g)].length,5);
+  app.click('point','point-003');
+  assert.equal(app.run('current().id'),'point-003');
+});
+
+test('a saved review shows Review menu only on review and report screens',async()=>{
+  const app=await client({...twoCards,screen:'report'});
+  assert.doesNotMatch(app.root.innerHTML,/class="review-menu"/);
+  app.click('resume');
+  assert.equal(app.run('screen'),'report');
+  assert.match(app.root.innerHTML,/class="review-menu"/);
+  app.click('point','point-001');
+  assert.equal(app.run('screen'),'review');
+  assert.match(app.root.innerHTML,/class="review-menu"/);
+  app.click('change-mode');
+  assert.doesNotMatch(app.root.innerHTML,/class="review-menu"/);
+  app.click('home');
+  assert.doesNotMatch(app.root.innerHTML,/class="review-menu"/);
+  assert.match(app.root.innerHTML,/class="saved-review"/);
+});
+
+test('review chrome names the platform and exposes help without repeated labels', async () => {
+  const app=await client({...twoCards,source:{catalogId:'meta'}});
+  app.run("setScreen('review')");
+  assert.match(app.root.innerHTML,/Instagram review/);
+  assert.match(app.root.innerHTML,/data-action="help"/);
+  assert.doesNotMatch(app.root.innerHTML,/header-document|depth-label|claim-kind|Choose one/);
+  app.run('openModal=html=>{globalThis.modalHTML=html;}');
+  app.click('help');
+  assert.match(app.run('modalHTML'),/Double-click/);
+  assert.match(app.run('modalHTML'),/Check source/);
+  assert.match(app.run('modalHTML'),/Reword claim/);
+  assert.doesNotMatch(app.run('modalHTML'),/Quick overview covers selected themes|neither is legal advice|Your responses record how you feel/);
+});
+
+test('the response trail preserves first-response order through revisits, undo and reload', async () => {
+  const app=await client(twoCards);
+  app.click('point','point-002');app.click('react','concern');app.click('confirm');
+  app.click('point','point-001');app.click('react','comfortable');app.click('confirm');
+  const trail=app.run('reactionTrail()');
+  assert.ok(trail.indexOf('data-trail-id="point-002"')<trail.indexOf('data-trail-id="point-001"'));
+  app.click('point','point-002');app.click('react','clarify');app.click('confirm');
+  assert.deepEqual(Array.from(app.run('state.responseOrder')),['point-002','point-001']);
+  app.click('undo');
+  assert.equal(app.run('state.responses["point-002"].reaction'),'concern');
+  const restored=restoreReview(app.run('JSON.stringify(state)'));
+  assert.deepEqual(restored.responseOrder,['point-002','point-001']);
+});
+
+test('undoing a first response removes its segment from the recorded response order', async () => {
+  const app=await client(twoCards);
+  app.run("setScreen('review')");app.click('react','comfortable');app.click('confirm');app.click('undo');
+  assert.deepEqual(Array.from(app.run('state.responseOrder')),[]);
+  assert.match(app.run('reactionTrail()'),/data-trail-id="point-001"[^>]*data-state="unseen"/);
+});
+
+test('the platform report keeps only attention details while every card stays in the map', async () => {
+  const app=await client({...followUpCards,source:{catalogId:'meta'}});
+  const html=app.run('reportView()');
+  assert.match(html,/<h1>Instagram report<\/h1>/);
+  assert.match(html,/Needs attention/);
+  assert.doesNotMatch(html,/Claim details|Left to review ·|Comfortable ·|<small>\d+ claims/);
+  assert.equal([...html.matchAll(/data-map-id="point-/g)].length,5);
+  assert.equal([...html.matchAll(/class="report-item"/g)].length,2);
+  assert.deepEqual([...html.matchAll(/class="tag reaction-tag"[^>]*>([^<]*)<\/span>/g)].map(match=>match[1]),['Concerned','Unsure']);
+});
+
+test('the concise download leads with priorities and totals and omits comfortable claim details', async () => {
+  const app=await client({...followUpCards,preferences:['collection']});
+  const report=app.run('reportText()');
+  assert.match(report,/Priority areas: Data collection/);
+  assert.match(report,/1 comfortable/);
+  assert.match(report,/email address/);
+  assert.match(report,/mailing address/);
+  assert.match(report,/username/);
+  assert.doesNotMatch(report,/phone number|ORIGINAL POLICY \(COMPLETE\)/);
+});
+
+test('a selected security priority survives reload when an overview only has collection cards',async()=>{
+  const app=await client({...twoCards,preferences:['security']});
+  assert.deepEqual(Array.from(app.run('state.preferences')),['security']);
+  assert.match(app.run('reportText()'),/Priority areas: Security/);
 });

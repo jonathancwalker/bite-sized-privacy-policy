@@ -99,3 +99,31 @@ Date: 2026-11-18. Status: implemented locally; pending user evaluation.
 The user proposed a progressive homepage path: choose a policy, reveal reading depth, then proceed. They also asked for a constrained card with a claim, progress, and Accept, Reject, Skip, or Reword; source wording should be available on demand. This updates D01's reaction labels in the card experience while retaining its distinction between a personal claim reaction and acceptance of a policy. Codex used a centered single-card layout, a source disclosure, and subtle priority, overview, and reworded treatments. Quick overview now targets a handful of high-level, source-linked themes for own-policy imports; detailed mode stays granular. Featured quick overviews were refreshed from their existing dated sources to match.
 
 Attribution: flow, card actions, and high-level overview goal from the user; implementation details and source disclosure from Codex. Evidence: [journal](journal/2026-11-18-card-review.md), [browser experiment](experiments.md#e08--progressive-card-review-and-shorter-overviews), [pipeline](../tooling/llm-decompose.mjs).
+
+## D13 — Default depth and carry personal reactions across the flow
+Date: 2026-11-18. Status: implemented locally; rendered verification pending. Supersedes D12's mandatory depth gate and reaction labels.
+
+Quick overview is the initial depth, with a compact toggle instead of a required step. Optional focus choices remain collapsed and never hide policy content. The review separates three personal judgments (Comfortable, Concerned, Unsure) from Skip, with persistent green/red/amber meaning and symbols. Claim wording scrolls within a bounded workspace; tools and responses occupy stable rows. The report groups individual claim squares by topic and lets each square reopen its card. Undo remains in the active review menu only.
+
+Evidence: [implementation journal](journal/2026-11-18-reaction-focused-ux.md), [shared design rules](../DESIGN.md), [before-states](assets/index.md#reaction-focused-ux-before-states--november-18-2026). Automated checks pass; browser layout, motion, and assistive-technology verification remain outstanding.
+
+## D14 — Priorities in a modal, response history, and a concise PDF
+Date: 2026-11-18. Status: implemented locally; PDF rendering checked, browser UI verification pending.
+
+Priority selection moves into a staged modal. Platform names replace generic headings, and contextual instructions move into help and source dialogs. Progress records first-response order, with source-order fallback for legacy data. The report retains the topic map and Needs attention details only. PDF export leads with priorities and totals, omits comfortable details, and preserves source wording for the remaining claims. Generation is local to the browser; the complete source record is available separately.
+
+Evidence: [implementation and verification journal](journal/2026-11-18-priorities-and-pdf-reports.md), [PDF generator](../app/report-pdf.js), [document tests](../report-pdf.test.mjs), [shared design rules](../DESIGN.md).
+
+## D15 — Restore one homepage column and stack topic groups
+Date: 2026-11-18. Status: implemented locally; browser layout verification pending.
+
+The homepage uses a plain canvas and a single centered column. The saved review retains its platform, reviewed count, and resume/report action below policy entry, without a reaction grid. The depth explanation loses its accent stripe. Report topic headings sit above the claim squares without numeric badges. Browser PDF dependencies share one bundling path across serving and static builds after a bare package import prevented export.
+
+Evidence: [before-states and regression results](journal/2026-11-18-single-column-and-pdf-packaging.md), [shared asset reader](../scripts/assets.mjs).
+
+## D16 — Limit PDF detail to explicit concerns and uncertainty
+Date: 2026-11-18. Status: implemented; PDF rendering verified, browser UI verification pending.
+
+The PDF includes claim details only for Concerned and Unsure responses. Summary totals still account for every claim, and the final coverage box counts skipped plus unseen cards as unreviewed. An empty attention list does not imply the policy was fully reviewed. The homepage keeps its graph-paper background and single-column layout; this corrects D15's plain-canvas choice.
+
+Evidence: [implementation and PDF verification](journal/2026-11-18-attention-only-pdf.md).

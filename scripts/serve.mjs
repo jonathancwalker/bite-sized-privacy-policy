@@ -1,12 +1,11 @@
 import http from 'node:http';
-import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ingestPolicy } from '../tooling/ingest.mjs';
 import { intelligentDecompose } from '../tooling/llm-decompose.mjs';
 import { rewordClaim } from '../tooling/reword-claim.mjs';
 import { POLICY_CATALOG } from '../tooling/catalog.mjs';
-import { APP_ASSETS } from './assets.mjs';
+import { APP_ASSETS, readAppAsset } from './assets.mjs';
 
 const root = fileURLToPath(new URL('../app/', import.meta.url));
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.ttf': 'font/ttf' };
@@ -135,7 +134,7 @@ async function handle(req, res, { apiKey, ingest, decompose, reword } = {}) {
     if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'This route does not accept that request method.');
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!file.startsWith(root) || !assets.has(path.relative(root, file))) throw new HttpError(404, 'NOT_FOUND', 'Not found.');
-    const content = await readFile(file);
+    const content = await readAppAsset(path.relative(root, file));
     res.writeHead(200, { 'Content-Type':types[path.extname(file)] || 'text/plain', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' });
     res.end(req.method === 'HEAD' ? undefined : content);
   } catch (error) {
