@@ -120,3 +120,10 @@ Date: 2026-11-18. Status: implemented locally; browser layout verification pendi
 The homepage uses a plain canvas and a single centered column. The saved review retains its platform, reviewed count, and resume/report action below policy entry, without a reaction grid. The depth explanation loses its accent stripe. Report topic headings sit above the claim squares without numeric badges. Browser PDF dependencies share one bundling path across serving and static builds after a bare package import prevented export.
 
 Evidence: [before-states and regression results](journal/2026-11-18-single-column-and-pdf-packaging.md), [shared asset reader](../scripts/assets.mjs).
+
+## D16 — Limit PDF detail to explicit concerns and uncertainty
+Date: 2026-11-18. Status: implemented; PDF rendering verified, browser UI verification pending.
+
+The PDF includes claim details only for Concerned and Unsure responses. Summary totals still account for every claim, and the final coverage box counts skipped plus unseen cards as unreviewed. An empty attention list does not imply the policy was fully reviewed. The homepage keeps its graph-paper background and single-column layout; this corrects D15's plain-canvas choice.
+
+Evidence: [implementation and PDF verification](journal/2026-11-18-attention-only-pdf.md).

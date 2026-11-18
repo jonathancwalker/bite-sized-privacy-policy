@@ -127,3 +127,7 @@ Provided screenshots from November 18, 2026; these document the previous state a
 - [Homepage with saved-review sidebar](exports/2026-11-18-home-before-single-column.jpg)
 - [Topic map with side labels and count badges](exports/2026-11-18-topic-map-before-stack.jpg)
 - [Unresolved pako dependency during PDF download](exports/2026-11-18-pdf-bare-import-error.jpg)
+
+## Attention-only PDF — November 18, 2026
+
+- [Final page and unreviewed coverage](exports/2026-11-18-pdf-attention-summary.jpg): actual two-page PDF output with synthetic responses; rendered with Poppler and inspected. Only Concerned and Unsure claim details are included. This is document-layout evidence, not browser verification.

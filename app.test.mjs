@@ -573,6 +573,7 @@ test('the platform report keeps only attention details while every card stays in
   assert.doesNotMatch(html,/Claim details|Left to review ·|Comfortable ·|<small>\d+ claims/);
   assert.equal([...html.matchAll(/data-map-id="point-/g)].length,5);
   assert.equal([...html.matchAll(/class="report-item"/g)].length,2);
+  assert.deepEqual([...html.matchAll(/class="tag reaction-tag"[^>]*>([^<]*)<\/span>/g)].map(match=>match[1]),['Concerned','Unsure']);
 });
 
 test('the concise download leads with priorities and totals and omits comfortable claim details', async () => {

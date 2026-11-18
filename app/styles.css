@@ -45,7 +45,6 @@ body {
   background-size: 28px 28px;
   background-position: -1px -1px;
 }
-body:has(.home-layout) { background-image: none; }
 button, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .5; }

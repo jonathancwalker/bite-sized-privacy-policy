@@ -1,12 +1,12 @@
 # Plainer visual foundation
 
-The interface uses Instrument Sans and white cards with thin blue-gray borders. The homepage has a plain canvas; review and report retain pale graph paper between opaque reading surfaces.
+The interface uses Instrument Sans and white cards with thin blue-gray borders. Pale graph paper sits between opaque reading surfaces across home, review, and report.
 
 ## Shared choices
 
 | Role | Value / treatment |
 | --- | --- |
-| Canvas | `#fcfdff`; plain on home, 28px low-opacity square grid elsewhere |
+| Canvas | `#fcfdff`, 28px low-opacity square grid across screens |
 | Surfaces | White, 1px `#cbd8e5` border, 7px corners |
 | Primary / secondary text | `#29333e` / `#627285` |
 | Action and focus accent | `#4265be`; selected surface `#f0f5ff` |
@@ -37,7 +37,7 @@ The interface uses Instrument Sans and white cards with thin blue-gray borders. 
 
 ## Report
 
-- Use a platform-specific report heading. Summary, topic map, Needs attention, and utilities each have a bordered surface. Only concerned and unsure claims are expanded below the map; other cards remain reachable through their squares. Each topic heading sits above its full-width tile group, without a card-count badge.
+- Use a platform-specific report heading. Summary, topic map, Needs attention, and utilities each have a bordered surface. Expanded reaction labels use words without leading symbols. Only concerned and unsure claims are expanded below the map; other cards remain reachable through their squares. Each topic heading sits above its full-width tile group, without a card-count badge.
 - Each map square represents exactly one claim, grouped by topic. Its symbol/color records a stored response, not a pending selection. Hover exposes wording through a native title; accessible names include the wording and status; click returns to that claim.
 - Fine-pointer squares are 28px with 6px gaps; coarse-pointer squares are 44px. Other primary controls are at least 44px high. The entire square is interactive.
 - Skipped and unseen remain separate. All wording and source disclosures remain available by revisiting a square and in the complete source record.
@@ -46,7 +46,7 @@ The interface uses Instrument Sans and white cards with thin blue-gray borders. 
 ## PDF report
 
 - Generate the file locally in the browser, using self-hosted PDF/font libraries and Instrument Sans. Bundle transitive dependencies into standalone ES modules through the shared serving/build asset reader. Export does not send reactions or source text to a service.
-- Put chosen priorities and five response totals first. Follow with concerned, unsure, skipped, and unseen claims in that order; omit comfortable claim details.
+- Put chosen priorities and five response totals first. Include only Concerned and Unsure claim details. End with an unreviewed fraction out of all claims, counting skipped and unseen cards. An empty attention list must not imply the review is complete.
 - Preserve exact source wording and cited context with each included claim. Paginate long passages, label continuations, and retain readable margins and page numbers.
 - Use the same graph-paper margin, white reading surfaces, and reaction colors as the app. The complete source record remains a separate text download in Review menu.
 - Unsupported font glyphs produce a clear error and a text-download alternative rather than silent character replacement. The PDF is not a tagged accessibility document.
