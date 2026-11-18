@@ -36,3 +36,13 @@ test('two cosmetic responses produce an honest failure instead of a fake rewordi
   }}), /different|clearer/i);
   assert.equal(calls, 2);
 });
+
+test('a structurally different but dense run-on explanation is retried', async () => {
+  const dense = 'The information collected about your account can be stored for different periods depending on the type of information involved and how it is used and the settings you choose and whether business purposes or legal requirements make a longer period necessary.';
+  const claim = 'Data retention depends on data type, use and settings, with longer retention when needed for business or legal purposes.';
+  const clearer = 'Your data type, its use and your settings determine how long it stays. Business or legal needs can require keeping it longer.';
+  let calls = 0;
+  const result = await rewordClaim({claim,sourceQuote:claim}, {apiKey:'test-key',fetchImpl:async () => respond(++calls === 1 ? dense : clearer)});
+  assert.equal(calls, 2);
+  assert.equal(result, clearer);
+});

@@ -23,3 +23,11 @@ Suggested approvals remain a future interaction proposal. They should distinguis
 
 - Separate selection from commitment when an accidental click changes a recorded decision.
 - A measurable output constraint can reject cosmetic rewrites, but semantic correctness still requires a separate check.
+
+## Live rewording follow-up
+
+Five live checks completed successfully: a synthetic 30-day deletion clause, a TikTok sharing claim, a repeat rewrite of that claim, and two iterations of Google's retention claim. The app API returned successful responses for the saved-policy samples. Inspection of these examples found their actors, conditions and retention exceptions preserved; this small sample is not a general fidelity score.
+
+The first Google result preserved the content but packed it into two dense sentences. A failing regression reproduced acceptance of a long run-on rewrite. The prompt now allows up to four short sentences, and sentences over 35 words trigger the same bounded retry used for cosmetic output. The next live Google result used four shorter sentences and retained the user-deletion choices, automatic deletion/anonymization, account-deletion boundary and business/legal exception.
+
+The final suite passes 76/76 and the build passes. Preview servers were restarted with a local ignored environment file. Browser rendering remains unverified because the browser approval gate previously denied access. Public-source inputs and outputs are recorded in [live examples](../evidence/2026-11-18-live-rewordings.json); credentials are not included.
