@@ -514,6 +514,22 @@ test('topic groups retain every clickable card without count badges',async()=>{
   assert.equal(app.run('current().id'),'point-003');
 });
 
+test('a saved review shows Review menu only on review and report screens',async()=>{
+  const app=await client({...twoCards,screen:'report'});
+  assert.doesNotMatch(app.root.innerHTML,/class="review-menu"/);
+  app.click('resume');
+  assert.equal(app.run('screen'),'report');
+  assert.match(app.root.innerHTML,/class="review-menu"/);
+  app.click('point','point-001');
+  assert.equal(app.run('screen'),'review');
+  assert.match(app.root.innerHTML,/class="review-menu"/);
+  app.click('change-mode');
+  assert.doesNotMatch(app.root.innerHTML,/class="review-menu"/);
+  app.click('home');
+  assert.doesNotMatch(app.root.innerHTML,/class="review-menu"/);
+  assert.match(app.root.innerHTML,/class="saved-review"/);
+});
+
 test('review chrome names the platform and exposes help without repeated labels', async () => {
   const app=await client({...twoCards,source:{catalogId:'meta'}});
   app.run("setScreen('review')");
@@ -525,6 +541,7 @@ test('review chrome names the platform and exposes help without repeated labels'
   assert.match(app.run('modalHTML'),/Double-click/);
   assert.match(app.run('modalHTML'),/Check source/);
   assert.match(app.run('modalHTML'),/Reword claim/);
+  assert.doesNotMatch(app.run('modalHTML'),/Quick overview covers selected themes|neither is legal advice|Your responses record how you feel/);
 });
 
 test('the response trail preserves first-response order through revisits, undo and reload', async () => {

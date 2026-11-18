@@ -32,7 +32,7 @@ The interface uses Instrument Sans and white cards with thin blue-gray borders. 
 - A contained, platform-named progress card shows one sliver per card in first-response order, labeled totals, and report access. Revisits update the existing sliver; legacy saved reactions fall back to source order. How to use sits directly below the panel. It becomes compact at narrow widths.
 - The claim workspace has a bounded height. Long wording scrolls inside a focusable reading region; the source/reword tools and response dock remain outside that region. Advancing preserves page scroll.
 - Comfortable, Concerned, and Unsure are parallel choices. Skip is a separate dashed control beside Back and Next. A single click selects, Next confirms, and double-click remains a shortcut.
-- Check source and Reword claim remain prominent. Occasional actions live in Review menu; Undo is available there during active review only.
+- Check source and Reword claim remain prominent. Occasional actions live in Review menu, which appears only on the review and report screens; Undo is available there during active review only. How to use focuses on operating the controls without a separate reading-depth or policy-acceptance paragraph.
 - Explicit priority topics get a blue edge with slow, subtle border movement. Rewording adds a tinted accuracy note after success. Reduced-motion preferences disable these animations.
 
 ## Report

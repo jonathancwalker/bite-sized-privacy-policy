@@ -211,7 +211,6 @@ input[type=radio] { accent-color: var(--accent); }
 .help-steps li::before { content: counter(help); position: absolute; left: 0; top: 18px; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; background: var(--selected); font-size: 13px; }
 .help-steps strong { font-size: 17px; font-weight: 600; }
 .help-steps p { margin-top: 6px; font-size: 14px; }
-.help-limit { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--selected); font-size: 13px; }
 .intake-privacy { margin-top: 20px; }
 .settings-panel h1 { margin: 24px 0 12px; }
 .settings-panel > .depth-toggle { margin-top: 24px; }

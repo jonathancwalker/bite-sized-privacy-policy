@@ -61,7 +61,7 @@ function frame(content){
     <div class="shell ${entry?'entry-shell':''}">
       <header class="header">
         <button class="brand" data-action="home" aria-label="Plainer — all policies">plainer<span aria-hidden="true">.</span></button>
-        <div class="header-right">${state?reviewMenu():''}</div>
+        <div class="header-right">${state&&['review','report'].includes(screen)?reviewMenu():''}</div>
       </header>
       <main id="main">
         ${storageError?'<p class="save-warning" role="status">Browser storage is unavailable. Your review works in this tab, but may not survive a refresh. Download your report before leaving.</p>':''}
@@ -254,7 +254,7 @@ function reportView(){
   </section>`;
 }
 function helpReview(){
-  openModal(`<div class="modal-top"><h2 id="modal-title">How to use Plainer</h2><button class="secondary" data-close>Close</button></div><ol class="help-steps"><li><strong>Choose how you feel</strong><p>Select Comfortable, Concerned, or Unsure, then press Next. Skip leaves a card for later.</p></li><li><strong>Double-click to move ahead</strong><p>Double-click a response to select it and advance in one move. You can go Back or undo your latest response in Review menu.</p></li><li><strong>Check source</strong><p>Open the exact passage behind a claim, highlighted in the original policy.</p></li><li><strong>Reword claim</strong><p>Try a different explanation. AI wording can miss or change meaning; compare it with the source.</p></li></ol><p class="help-limit">Quick overview covers selected themes. Lawyer mode goes into more detail; neither is legal advice. Your responses record how you feel and do not accept the policy.</p>`);
+  openModal(`<div class="modal-top"><h2 id="modal-title">How to use Plainer</h2><button class="secondary" data-close>Close</button></div><ol class="help-steps"><li><strong>Choose how you feel</strong><p>Select Comfortable, Concerned, or Unsure, then press Next. Skip leaves a card for later.</p></li><li><strong>Double-click to move ahead</strong><p>Double-click a response to select it and advance in one move. You can go Back or undo your latest response in Review menu.</p></li><li><strong>Check source</strong><p>Open the exact passage behind a claim, highlighted in the original policy.</p></li><li><strong>Reword claim</strong><p>Try a different explanation. AI wording can miss or change meaning; compare it with the source.</p></li></ol>`);
 }
 function reportInfo(){
   openModal(`<div class="modal-top"><h2 id="modal-title">About this report</h2><button class="secondary" data-close>Close</button></div><div class="help-copy"><p>${analysis.readingMode==='user'?`Quick overview covers selected themes. ${analysis.unclaimedUnitIds.length} source units are outside this overview.`:'Lawyer mode covers individual claims in more detail.'} AI wording is unverified; compare it with the original policy.</p><p>Colors record your personal reactions, not a risk score or acceptance of the policy. Each square opens its claim.</p><p>The download includes your priorities, response totals, and claims that are concerned, unsure, skipped, or not reviewed. Comfortable claims are counted without repeating their wording.</p>${state.source?.fetchedAt?`<p>Source fetched ${escape(new Date(state.source.fetchedAt).toLocaleDateString())}.</p>`:''}<p>You can download the full source record from Review menu.</p></div>`);
