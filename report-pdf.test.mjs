@@ -44,6 +44,30 @@ test('PDF includes priorities, totals and source-linked concerns without comfort
   assert.match(text,/account data for 30 days/);
   assert.match(text,/Source fetched/);
   assert.doesNotMatch(text,/COMFORTABLE_DETAIL|COMFORTABLE_SOURCE/);
+  assert.match(pages.at(-1).text,/0 \/ 3 claims unreviewed/);
+});
+
+test('a five-claim PDF includes only concern and unsure details, with two unreviewed at the end',async()=>{
+  const mixed={...sample,total:5,totals:{...sample.totals,skipped:1,unseen:1},items:[...sample.items,
+    {id:'point-004',status:'skipped',label:'Skipped',topic:'Sharing',wording:'SKIPPED_DETAIL',sourceQuote:'SKIPPED_SOURCE'},
+    {id:'point-005',status:'unseen',label:'Not reviewed',topic:'Sharing',wording:'UNREVIEWED_DETAIL',sourceQuote:'UNREVIEWED_SOURCE'}]};
+  const pages=await readPdf(await createReportPdf(mixed,options));
+  const text=pages.map(page=>page.text).join(' ');
+  assert.match(text,/Your account data stays for 30 days/);
+  assert.match(text,/Partners receive browsing information/);
+  assert.doesNotMatch(text,/COMFORTABLE_DETAIL|COMFORTABLE_SOURCE|SKIPPED_DETAIL|SKIPPED_SOURCE|UNREVIEWED_DETAIL|UNREVIEWED_SOURCE/);
+  const last=pages.at(-1).text;
+  assert.match(last,/2 \/ 5 claims unreviewed/);
+  assert.ok(last.indexOf('2 / 5 claims unreviewed')>last.indexOf('Source fetched'),'coverage count closes the report');
+});
+
+test('a PDF with five unreviewed claims does not imply they were comfortable or completed',async()=>{
+  const unread={...sample,total:5,reviewed:0,totals:{comfortable:0,concern:0,clarify:0,skipped:2,unseen:3},items:[]};
+  const pages=await readPdf(await createReportPdf(unread,options));
+  const text=pages.map(page=>page.text).join(' ');
+  assert.match(text,/No concerns or uncertainty recorded/);
+  assert.match(pages.at(-1).text,/5 \/ 5 claims unreviewed/);
+  assert.doesNotMatch(text,/All reviewed claims were marked Comfortable|Nothing left to revisit/);
 });
 
 test('a long claim and source continue across pages without clipping or dropping their endings',async()=>{

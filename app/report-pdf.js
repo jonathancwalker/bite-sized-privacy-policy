@@ -71,6 +71,13 @@ export async function createReportPdf(data, {PDFDocument, rgb, fontkit, fontByte
     });
     y-=104;
   }
+  function unreviewedSummary(){
+    const unreviewed=(data.totals.skipped||0)+(data.totals.unseen||0);
+    y-=18;ensure(56);
+    page.drawRectangle({x:margin,y:y-46,width,height:46,color:color('#f0f5ff'),borderColor:line,borderWidth:.7});
+    text(`${unreviewed} / ${data.total} claims unreviewed`,margin+16,y-28,14);
+    y-=46;
+  }
   function itemLines(item){
     const lines=[];
     function block(value,size=12,leading=18,label=''){
@@ -122,14 +129,15 @@ export async function createReportPdf(data, {PDFDocument, rgb, fontkit, fontByte
   heading(data.title,30);
   paragraph(`${data.reviewed} of ${data.total} reviewed  /  ${date(data.generatedAt)}`,12,20);y-=18;
   priorityBox();stats();
-  const items=data.items.filter(item=>item.status!=='comfortable');
+  const items=data.items.filter(item=>['concern','clarify'].includes(item.status));
   if(items.length){ensure(190);heading('To look at again');for(const item of items)claim(item);}
-  else {heading('Nothing left to revisit');paragraph('All reviewed claims were marked Comfortable. Their wording is omitted from this report.');y-=20;}
+  else {heading('No concerns or uncertainty recorded');y-=12;}
   heading('About this report',17);
   paragraph(`${data.depth}. ${data.coverage}`,10.5,16);y-=10;
-  paragraph('These are personal reactions, not acceptance of the policy or legal advice. AI wording may miss or change meaning. Comfortable claims are counted without repeating their details.',10.5,16);y-=12;
+  paragraph('These are personal reactions, not acceptance of the policy or legal advice. AI wording may miss or change meaning. Only Concerned and Unsure claims appear in detail.',10.5,16);y-=12;
   paragraph(`Source: ${data.source.url||data.source.kind||'Provided policy'}`,10.5,16);
   paragraph(`Source fetched: ${date(data.source.fetchedAt)}${data.source.scope?'  /  '+data.source.scope:''}`,10.5,16);
+  unreviewedSummary();
   const pages=pdf.getPages();
   pages.forEach((sheet,index)=>{
     page=sheet;text('Personal privacy review',margin,28,9);
