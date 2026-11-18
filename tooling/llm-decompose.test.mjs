@@ -46,7 +46,7 @@ test('context quote must belong to the cited adjacent unit',()=>{
   assert.equal(validateClaims(base,proposed).rejected[0].reason,'invalid-context-link');
 });
 test('user overview caps cards per group while groups run concurrently', async()=>{
-  const longText=Array.from({length:70},(_,i)=>`Section ${i+1}\n\nWe collect account detail ${i+1} when you use this feature, unless you disable it in settings.\n\n`).join('');
+  const longText=Array.from({length:320},(_,i)=>`Section ${i+1}\n\nWe collect account detail ${i+1} when you use this feature, unless you disable it in settings.\n\n`).join('');
   let active=0, peak=0, groups=0;
   const result=await intelligentDecompose({text:longText},{mode:'user',concurrency:3,propose:async ({units})=>{
     groups++;active++;peak=Math.max(peak,active);

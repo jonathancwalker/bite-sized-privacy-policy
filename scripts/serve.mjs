@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ingestPolicy } from '../tooling/ingest.mjs';
 import { intelligentDecompose } from '../tooling/llm-decompose.mjs';
+import { rewordClaim } from '../tooling/reword-claim.mjs';
 import { POLICY_CATALOG } from '../tooling/catalog.mjs';
 
 const root = fileURLToPath(new URL('../app/', import.meta.url));
@@ -82,7 +83,7 @@ function importInput(body) {
   throw new HttpError(400, 'INVALID_SOURCE', 'Choose a policy from the list, enter a URL, paste text, or upload a file.');
 }
 
-async function handle(req, res, { apiKey, ingest, decompose } = {}) {
+async function handle(req, res, { apiKey, ingest, decompose, reword } = {}) {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     if (pathname === '/api/catalog') {
@@ -106,6 +107,14 @@ async function handle(req, res, { apiKey, ingest, decompose } = {}) {
       if (!apiKey) throw new HttpError(503, 'MODEL_UNAVAILABLE', 'Intelligent parsing is unavailable in this local run. Restart the server with OPENAI_API_KEY set.');
       const analysis = await (decompose || intelligentDecompose)({ title, text, source:body.source?.finalUrl || body.source?.kind || '' }, { apiKey, mode });
       return json(res, 200, { analysis });
+    }
+    if (pathname === '/api/reword') {
+      if (req.method !== 'POST') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'Use POST to reword a claim.');
+      const body=await readJson(req);
+      if(typeof body.claim!=='string'||!body.claim.trim()||body.claim.length>600||typeof body.sourceQuote!=='string'||body.sourceQuote.length<12||body.sourceQuote.length>4000||body.contextQuote!=null&&(typeof body.contextQuote!=='string'||body.contextQuote.length>2000))throw new HttpError(400,'INVALID_CLAIM','This claim could not be reworded.');
+      if(!apiKey)throw new HttpError(503,'MODEL_UNAVAILABLE','Rewording is unavailable in this local run. Restart the server with OPENAI_API_KEY set.');
+      const reworded=await (reword||rewordClaim)({claim:body.claim,sourceQuote:body.sourceQuote,contextQuote:body.contextQuote||''},{apiKey});
+      return json(res,200,{reworded});
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'This route does not accept that request method.');
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));

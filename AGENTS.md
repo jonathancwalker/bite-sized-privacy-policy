@@ -7,7 +7,8 @@ Plainer helps people understand privacy policies through short, readable claims 
 - Make the flow simple and constrained: a clear hierarchy, generous but intentional spacing, minimal copy, and progressive disclosure. Avoid decorative marketing blurbs and generic AI-looking visual treatments.
 - Respect the user's sketches and specific feedback. When changing a screen, consider the rest of the flow for consistency; use the running local app to inspect visual changes and provide screenshots when useful or requested.
 - The homepage offers familiar policies as recognizable choices and an expandable own-policy entry with upload, paste, and URL options. Keep the path into a review straightforward.
-- The user makes the judgment. Reactions and reports record comfort, questions, concerns, and unfinished material; they do not accept or change a policy. Topic preferences may reorder content but should not silently hide it.
+- Choose the policy first, then reveal reading depth on the homepage before opening the result or accepting own-policy input. The user's preferred review is one constrained claim card at a time, with progress and Accept, Reject, Skip, and Reword actions. Keep original wording available on demand rather than occupying the card. Use quiet cues for priority, overview, and reworded claims.
+- The user makes the judgment. Accept and Reject are personal reactions to a claim; they do not accept or change a policy. Reports keep skipped and unfinished material visible. Topic preferences may reorder content but should not silently hide it.
 
 ## Claims and source integrity
 
@@ -16,6 +17,8 @@ Plainer helps people understand privacy policies through short, readable claims 
 - An exact quote proves a text match, not that a paraphrase is accurate. Do not label model output legally verified or infer policy practices that are not supported. Review representative real-policy outputs for readability, repetition, context, and faithfulness when changing decomposition.
 - Some official sites block automated fetching or return region-specific versions. Record source URL, version or scope when known, and be honest about extraction limits. The OpenAI policy returned HTTP 403 to the command-line fetcher during a prior audit.
 - Benchmarks can help answer a concrete question, but the user has prioritized a useful end-to-end experience over immediately building a comprehensive benchmark suite.
+- Quick overview (user mode) should produce a handful of broad, source-linked themes that give a working understanding of an imported policy; detailed (lawyer) mode stays granular. The overview is selective, so disclose unsummarized source material and keep the complete policy easy to open. Neither mode implies legal review.
+- The three homepage policies open from saved, dated analyses rather than triggering an import or model call on every visit. `npm run save-featured` refetches source and both modes; `npm run refresh-featured-overviews` regenerates just the quick overviews from the saved source. Show the original source fetch date and do not imply a snapshot is current without checking.
 
 ## Project map and verification
 
