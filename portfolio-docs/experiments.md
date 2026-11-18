@@ -126,3 +126,5 @@ Method: reproduce malformed model entries, claims assigned to another batch, pri
 Observed result: 68 tests attempted, 60 passed, seven HTTP integration tests failed with loopback `EPERM`, and one PDF test failed without the unavailable PDF dependency. Installation could not reach the npm registry. Static build, module coverage, syntax and whitespace checks passed. Live server startup was also denied. No live model calls or featured-snapshot changes were made.
 
 Limits: mock transports and direct request-handler checks do not establish real network behavior, rendered layout or semantic fidelity. The CI workflow is configured but has not run remotely. See [cleanup record](journal/2026-11-18-functional-cleanup.md) for the changes and remaining verification.
+
+E09 follow-up: dependency installation succeeded in an unrestricted runtime; the full suite passed 68/68, including HTTP integration and PDF extraction, and the static build passed. This resolves the earlier eight environment failures.

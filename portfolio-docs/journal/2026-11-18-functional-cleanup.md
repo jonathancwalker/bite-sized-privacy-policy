@@ -34,3 +34,7 @@ Overview theme repetition and semantic fidelity require a focused model-output e
 - Validate data again where it becomes user-facing state: server validation does not protect against damaged browser storage or stale saved files.
 - Preserve identifiers during cleanup: removing an empty card must not move an existing reaction onto a different passage.
 - Separate test outcomes from environment limits: direct handler tests can verify request logic while real socket and browser checks remain explicitly outstanding.
+
+## Verification follow-up
+
+With network and loopback access available, `npm ci` succeeded, all 68 tests passed (including HTTP integration and PDF extraction), and `npm run build` passed. The earlier eight environment failures are resolved. Remote CI, browser rendering and live model behavior remain separate checks.
