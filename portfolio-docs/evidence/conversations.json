@@ -1,0 +1,16 @@
+[
+  {
+    "id": "01a1ca87-c1d3-7923-bcad-ed2c18240545",
+    "title": "pathfinding/vision",
+    "cwd": "/Users/jcw/Documents/Codex/2026-11-10/i-think-you-got-soem-more/bite-sized-privacy-policy",
+    "pageCount": 1,
+    "turnCount": 4,
+    "turnIds": [
+      "01a1cb69-359a-7c42-9854-9af83bc9376f",
+      "01a1cb67-ab5c-7ed1-866d-15e322ba259b",
+      "01a1cb4a-1955-75d0-811c-4e77d8c54a77",
+      "01a1ca87-d0c4-7142-bf14-6c5e89e315d8"
+    ],
+    "hasMore": false
+  }
+]

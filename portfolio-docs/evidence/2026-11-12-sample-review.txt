@@ -1,0 +1,103 @@
+BITE-SIZED · PERSONAL POLICY REVIEW
+Mosslight Journal Privacy Policy
+Document added: 2026-11-13T00:29:52.048Z
+Report exported: 2026-11-13T00:31:19.673Z
+Coverage: 3/11 points reviewed
+1 concerns | 1 need clarification | 1 comfortable | 8 still to review
+Priorities: Retention and deletion
+
+This report records personal reactions, not legal advice or acceptance. Points are exact source passages grouped with keyword-based suggested topics; they are not verified claims. Related links indicate shared suggested topics, not verified legal dependencies.
+
+NOTE TO MY FUTURE SELF
+Ask about retention exceptions before deciding.
+
+[point-008] Retention and deletion detail 1
+Reaction: Need clarification
+Saved question: Does the 60-day window also apply to account deletion?
+Related points: point-011
+Source characters 1438–1656:
+We keep account information and entries while your account remains open. You can delete individual entries in the app; deleted entries are removed from active systems promptly and from routine backups within 60 days.
+
+[point-011] Retention and deletion detail 2
+Reaction: Not comfortable · POTENTIAL DEALBREAKER
+Note: The retention exception has no clear time limit.
+Related points: point-008
+Source characters 2047–2259:
+We may retain information when needed to comply with law, resolve disputes, or enforce our terms. If we make a material change to this policy, we will post the updated version and notify account holders by email.
+
+[point-001] Data collection detail 1
+Reaction: Comfortable
+Related points: point-002, point-003
+Source characters 0–183:
+Mosslight Journal is a fictional app for saving private notes, photos, and voice entries. We collect and use information when you create an account, use its features, or contact us.
+
+[point-002] Data collection detail 2
+Reaction: Skipped
+Related points: point-001, point-003
+Source characters 183–341:
+When you register, we collect your email address, display name, and password credential. You may also add an optional profile picture and a short biography.
+
+[point-003] Data collection detail 3
+Reaction: Not reviewed
+Related points: point-001, point-002
+Source characters 341–561:
+Entries, attachments, and voice recordings you choose to save are stored with your account. If you enable location tagging, we collect the location you attach to an entry; location tagging is off unless you turn it on.
+
+[point-004] Data collection detail 4
+Reaction: Not reviewed
+Related points: point-001, point-002
+Source characters 561–760:
+The app receives device and log information, including device type, app version, language, time of requests, and error details. We use this information to operate the service and diagnose failures.
+
+[point-005] Advertising and tracking detail 1
+Reaction: Not reviewed
+Related points: point-006
+Source characters 760–977:
+We use essential cookies and similar storage to keep you signed in and remember settings. With your permission, our analytics provider receives app events and a rotating identifier to help us understand feature use.
+
+[point-006] Advertising and tracking detail 2
+Reaction: Not reviewed
+Related points: point-005
+Source characters 977–1207:
+We do not sell personal information. We share account and service data with hosting, customer support, and analytics providers that process it for us under service agreements. They may not use it to advertise their own products.
+
+[point-007] Sharing detail 1
+Reaction: Not reviewed
+Related points: None suggested
+Source characters 1207–1438:
+If you choose to export an entry or share a public link, the selected content is provided to the destination or anyone who has that link. Public links remain available until you disable them, but recipients may have saved a copy.
+
+[point-009] Your controls detail 1
+Reaction: Not reviewed
+Related points: None suggested
+Source characters 1656–1847:
+You can view, correct, and export profile information in settings. You may turn off optional analytics or location tagging there, and you can request account deletion from the account page.
+
+[point-010] Security detail 1
+Reaction: Not reviewed
+Related points: None suggested
+Source characters 1847–2047:
+We use access controls, encryption in transit, and encrypted backups to protect stored information. No internet service can guarantee that every transmission or storage system will always be secure.
+
+ORIGINAL POLICY (COMPLETE)
+Mosslight Journal is a fictional app for saving private notes, photos, and voice entries. We collect and use information when you create an account, use its features, or contact us.
+
+When you register, we collect your email address, display name, and password credential. You may also add an optional profile picture and a short biography.
+
+Entries, attachments, and voice recordings you choose to save are stored with your account. If you enable location tagging, we collect the location you attach to an entry; location tagging is off unless you turn it on.
+
+The app receives device and log information, including device type, app version, language, time of requests, and error details. We use this information to operate the service and diagnose failures.
+
+We use essential cookies and similar storage to keep you signed in and remember settings. With your permission, our analytics provider receives app events and a rotating identifier to help us understand feature use.
+
+We do not sell personal information. We share account and service data with hosting, customer support, and analytics providers that process it for us under service agreements. They may not use it to advertise their own products.
+
+If you choose to export an entry or share a public link, the selected content is provided to the destination or anyone who has that link. Public links remain available until you disable them, but recipients may have saved a copy.
+
+We keep account information and entries while your account remains open. You can delete individual entries in the app; deleted entries are removed from active systems promptly and from routine backups within 60 days.
+
+You can view, correct, and export profile information in settings. You may turn off optional analytics or location tagging there, and you can request account deletion from the account page.
+
+We use access controls, encryption in transit, and encrypted backups to protect stored information. No internet service can guarantee that every transmission or storage system will always be secure.
+
+We may retain information when needed to comply with law, resolve disputes, or enforce our terms. If we make a material change to this policy, we will post the updated version and notify account holders by email.

@@ -1,0 +1,8 @@
+{
+  "project": "bite-sized-privacy-policy",
+  "primaryDocumentLinksChecked": 29,
+  "copiesHashChecked": 3,
+  "errors": [],
+  "visualReview": "New exports reviewed at full size or in contact sheets; recovered raster assets inspected in contact sheets. Existing SVGs retained with matching hashes and paired raster outputs. Existing walkthrough inspected through three sampled frames; not watched in full.",
+  "scope": "Documentation integrity only; no historical model, participant, or native-application tests rerun."
+}
