@@ -6,10 +6,11 @@ import { ingestPolicy } from '../tooling/ingest.mjs';
 import { intelligentDecompose } from '../tooling/llm-decompose.mjs';
 import { rewordClaim } from '../tooling/reword-claim.mjs';
 import { POLICY_CATALOG } from '../tooling/catalog.mjs';
+import { APP_ASSETS } from './assets.mjs';
 
 const root = fileURLToPath(new URL('../app/', import.meta.url));
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
-const assets = new Set(['index.html', 'styles.css', 'app.js', 'engine.js', 'concepts.html', 'concepts.css', 'concepts.js', ...['meta','tiktok-us','youtube-google'].map(id=>`data/featured/${id}.json`)]);
+const assets = new Set(APP_ASSETS);
 const MAX_TEXT_CHARS = 80_000;
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 const MAX_JSON_BYTES = 17_500_000; // 12 MiB file encoded as base64, plus JSON metadata.
@@ -83,9 +84,23 @@ function importInput(body) {
   throw new HttpError(400, 'INVALID_SOURCE', 'Choose a policy from the list, enter a URL, paste text, or upload a file.');
 }
 
+function requireLocalRequest(req) {
+  let target;
+  try { target = new URL(`http://${req.headers.host}`); }
+  catch { throw new HttpError(403, 'INVALID_HOST', 'Open the app through its local address.'); }
+  if (!['localhost', '127.0.0.1', '[::1]'].includes(target.hostname) ||
+      target.username || target.password || target.host !== req.headers.host) {
+    throw new HttpError(403, 'INVALID_HOST', 'Open the app through its local address.');
+  }
+  if (req.headers.origin && req.headers.origin !== target.origin) {
+    throw new HttpError(403, 'INVALID_ORIGIN', 'API requests must come from this local app.');
+  }
+}
+
 async function handle(req, res, { apiKey, ingest, decompose, reword } = {}) {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    if (pathname.startsWith('/api/')) requireLocalRequest(req);
     if (pathname === '/api/catalog') {
       if (req.method !== 'GET') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'Use GET for the policy list.');
       return json(res, 200, { entries: POLICY_CATALOG });

@@ -1,6 +1,13 @@
-import { mkdir, copyFile } from 'node:fs/promises';
-await mkdir(new URL('../app/dist/', import.meta.url), { recursive: true });
-for (const name of ['index.html', 'styles.css', 'app.js', 'engine.js', 'concepts.html', 'concepts.css', 'concepts.js']) await copyFile(new URL('../app/' + name, import.meta.url), new URL('../app/dist/' + name, import.meta.url));
-await mkdir(new URL('../app/dist/data/featured/', import.meta.url), { recursive:true });
-for (const id of ['meta','tiktok-us','youtube-google']) await copyFile(new URL(`../app/data/featured/${id}.json`, import.meta.url), new URL(`../app/dist/data/featured/${id}.json`, import.meta.url));
+import { mkdir, copyFile, rm } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { APP_ASSETS } from './assets.mjs';
+
+const output = new URL('../app/dist/', import.meta.url);
+await rm(output, {recursive:true, force:true});
+for (const name of APP_ASSETS) {
+  const destination = new URL(name, output);
+  await mkdir(dirname(fileURLToPath(destination)), {recursive:true});
+  await copyFile(new URL('../app/' + name, import.meta.url), destination);
+}
 console.log('Built app/dist');
