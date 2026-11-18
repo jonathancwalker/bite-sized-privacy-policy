@@ -1,0 +1,281 @@
+[
+  {
+    "title": "privacy review flow",
+    "file": "assets/source/backfill/privacy-review-flow.svg",
+    "kind": "Explanatory diagram",
+    "caption": "A backfill explanation of the documented design; not a product screenshot or measured result.",
+    "usage": "Ready as a labeled explanatory graphic; preserve the caption.",
+    "provenance": "Created by Codex on 2026-11-12 from the source documents cited in this project’s records.",
+    "alt": "A backfill explanation of the documented design; not a product screenshot or measured result."
+  },
+  {
+    "title": "privacy review flow",
+    "file": "assets/exports/backfill/privacy-review-flow.png",
+    "kind": "Explanatory diagram",
+    "caption": "A backfill explanation of the documented design; not a product screenshot or measured result.",
+    "usage": "Ready as a labeled explanatory graphic; preserve the caption.",
+    "provenance": "Created by Codex on 2026-11-12 from the source documents cited in this project’s records.",
+    "alt": "A backfill explanation of the documented design; not a product screenshot or measured result."
+  },
+  {
+    "title": "2026-11-12-live-prototype",
+    "file": "assets/exports/2026-11-12-live-prototype.png",
+    "kind": "Product screenshot",
+    "caption": "Working prototype; fictional sample and synthetic QA reactions where shown. Mobile capture precedes report-access adjustment.",
+    "usage": "Ready as labeled prototype evidence",
+    "provenance": "Codex Chrome browser QA, 2026-11-12",
+    "alt": "2026 11 12 live prototype"
+  },
+  {
+    "title": "2026-11-12-review-mobile",
+    "file": "assets/exports/2026-11-12-review-mobile.png",
+    "kind": "Product screenshot",
+    "caption": "Working prototype; fictional sample and synthetic QA reactions where shown. Mobile capture precedes report-access adjustment.",
+    "usage": "Ready as labeled prototype evidence",
+    "provenance": "Codex Chrome browser QA, 2026-11-12",
+    "alt": "2026 11 12 review mobile"
+  },
+  {
+    "title": "2026-11-12-report-desktop",
+    "file": "assets/exports/2026-11-12-report-desktop.png",
+    "kind": "Product screenshot",
+    "caption": "Working prototype; fictional sample and synthetic QA reactions where shown. Mobile capture precedes report-access adjustment.",
+    "usage": "Ready as labeled prototype evidence",
+    "provenance": "Codex Chrome browser QA, 2026-11-12",
+    "alt": "2026 11 12 report desktop"
+  },
+  {
+    "title": "2026-11-12-report-complete",
+    "file": "assets/exports/2026-11-12-report-complete.png",
+    "kind": "Product screenshot",
+    "caption": "Working prototype; fictional sample and synthetic QA reactions where shown. Mobile capture precedes report-access adjustment.",
+    "usage": "Ready as labeled prototype evidence",
+    "provenance": "Codex Chrome browser QA, 2026-11-12",
+    "alt": "2026 11 12 report complete"
+  },
+  {
+    "title": "Intake and claim pipeline",
+    "file": "assets/source/2026-11-17-intake-pipeline.svg",
+    "kind": "Explanatory diagram",
+    "caption": "Implemented intake and proposal path; quote matching does not establish semantic accuracy.",
+    "usage": "Ready as labeled architecture diagram (SVG source/viewable)",
+    "provenance": "Codex, 2026-11-17",
+    "alt": "Catalog, URL, paste, and file input flow through source records, exact units, model proposals, and citation checks."
+  },
+  {
+    "title": "2026-11-17-flow-01-intake",
+    "file": "assets/exports/2026-11-17-flow-01-intake.jpg",
+    "kind": "Product screenshot",
+    "caption": "Four intake paths are visible: common policy, link, paste, and file upload.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "Four intake paths are visible: common policy, link, paste, and file upload."
+  },
+  {
+    "title": "2026-11-17-flow-02-source-preview",
+    "file": "assets/exports/2026-11-17-flow-02-source-preview.jpg",
+    "kind": "Product screenshot",
+    "caption": "Extracted fictional policy text appears before model analysis.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "Extracted fictional policy text appears before model analysis."
+  },
+  {
+    "title": "2026-11-17-flow-03-topic-map",
+    "file": "assets/exports/2026-11-17-flow-03-topic-map.jpg",
+    "kind": "Product screenshot",
+    "caption": "Nineteen draft claims and suggested topic counts appear before review.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "Nineteen draft claims and suggested topic counts appear before review."
+  },
+  {
+    "title": "2026-11-17-flow-04-claim-card",
+    "file": "assets/exports/2026-11-17-flow-04-claim-card.jpg",
+    "kind": "Product screenshot",
+    "caption": "A model draft claim is shown with exact source wording and three reactions.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "A model draft claim is shown with exact source wording and three reactions."
+  },
+  {
+    "title": "2026-11-17-flow-05-source-highlight",
+    "file": "assets/exports/2026-11-17-flow-05-source-highlight.jpg",
+    "kind": "Product screenshot",
+    "caption": "The cited exact quote is highlighted in the full extracted policy.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "The cited exact quote is highlighted in the full extracted policy."
+  },
+  {
+    "title": "2026-11-17-flow-06-clarification",
+    "file": "assets/exports/2026-11-17-flow-06-clarification.jpg",
+    "kind": "Product screenshot",
+    "caption": "A synthetic clarification question is saved on the first claim.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "A synthetic clarification question is saved on the first claim."
+  },
+  {
+    "title": "2026-11-17-flow-07-report",
+    "file": "assets/exports/2026-11-17-flow-07-report.jpg",
+    "kind": "Product screenshot",
+    "caption": "The partial report surfaces the saved question and collapsed unreviewed claims.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex remote Chrome capture of local preview, 2026-11-17; fictional policy and synthetic QA input",
+    "alt": "The partial report surfaces the saved question and collapsed unreviewed claims."
+  },
+  {
+    "title": "2026-11-17-entry-home-clean",
+    "file": "assets/exports/2026-11-17-entry-home-clean.jpg",
+    "kind": "Product screenshot",
+    "caption": "Narrow first-visit screen with three featured policies and an own-policy path.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "Narrow first-visit screen with three featured policies and an own-policy path."
+  },
+  {
+    "title": "2026-11-17-entry-home",
+    "file": "assets/exports/2026-11-17-entry-home.jpg",
+    "kind": "Product screenshot",
+    "caption": "A quiet resume strip appears when an earlier review is saved.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "A quiet resume strip appears when an earlier review is saved."
+  },
+  {
+    "title": "2026-11-17-entry-upload",
+    "file": "assets/exports/2026-11-17-entry-upload.jpg",
+    "kind": "Product screenshot",
+    "caption": "Upload tab with dashed drop zone and file chooser before selection.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "Upload tab with dashed drop zone and file chooser before selection."
+  },
+  {
+    "title": "2026-11-17-entry-upload-selected",
+    "file": "assets/exports/2026-11-17-entry-upload-selected.jpg",
+    "kind": "Product screenshot",
+    "caption": "A synthetic TXT file is selected and Continue is enabled.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "A synthetic TXT file is selected and Continue is enabled."
+  },
+  {
+    "title": "2026-11-17-entry-paste",
+    "file": "assets/exports/2026-11-17-entry-paste.jpg",
+    "kind": "Product screenshot",
+    "caption": "Paste tab with name and policy-text fields.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "Paste tab with name and policy-text fields."
+  },
+  {
+    "title": "2026-11-17-entry-url",
+    "file": "assets/exports/2026-11-17-entry-url.jpg",
+    "kind": "Product screenshot",
+    "caption": "URL tab with one public policy link field.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "URL tab with one public policy link field."
+  },
+  {
+    "title": "2026-11-17-entry-source-check",
+    "file": "assets/exports/2026-11-17-entry-source-check.jpg",
+    "kind": "Product screenshot",
+    "caption": "Fetched TikTok US policy in the compact source check.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "Fetched TikTok US policy in the compact source check."
+  },
+  {
+    "title": "2026-11-17-entry-to-claim",
+    "file": "assets/exports/2026-11-17-entry-to-claim.jpg",
+    "kind": "Product screenshot",
+    "caption": "A source-linked AI draft claim from the synthetic TXT policy.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "A source-linked AI draft claim from the synthetic TXT policy."
+  },
+  {
+    "title": "2026-11-17-entry-to-report",
+    "file": "assets/exports/2026-11-17-entry-to-report.jpg",
+    "kind": "Product screenshot",
+    "caption": "A partial report includes a synthetic saved clarification.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex browser capture of local preview, 2026-11-17; synthetic QA input except public TikTok source",
+    "alt": "A partial report includes a synthetic saved clarification."
+  },
+  {
+    "title": "2026-11-17-entry-to-overview",
+    "file": "assets/exports/2026-11-17-entry-to-overview.jpg",
+    "kind": "Product screenshot",
+    "caption": "The synthetic TXT policy produced a topic map with 12 draft claims.",
+    "usage": "Ready as labeled local-prototype evidence; not a user-study result",
+    "provenance": "Codex in-app browser capture of local preview, 2026-11-17; synthetic QA input",
+    "alt": "The synthetic TXT policy produced a topic map with 12 draft claims."
+  },
+  {
+    "title": "2026-11-17-entry-mobile-home",
+    "file": "assets/exports/2026-11-17-entry-mobile-home.jpg",
+    "kind": "Product screenshot",
+    "caption": "Narrow landing at a 390 by 844 viewport; lower scrollable content is clipped in this export.",
+    "usage": "QA only; clipped viewport export",
+    "provenance": "Codex in-app browser capture of local preview, 2026-11-17; synthetic QA input",
+    "alt": "Narrow landing at a 390 by 844 viewport; lower scrollable content is clipped in this export."
+  },
+  {
+    "title": "2026-11-17-entry-mobile-upload",
+    "file": "assets/exports/2026-11-17-entry-mobile-upload.jpg",
+    "kind": "Product screenshot",
+    "caption": "Narrow upload screen at a 390 by 844 viewport; lower scrollable content is clipped in this export.",
+    "usage": "QA only; clipped viewport export",
+    "provenance": "Codex in-app browser capture of local preview, 2026-11-17; synthetic QA input",
+    "alt": "Narrow upload screen at a 390 by 844 viewport; lower scrollable content is clipped in this export."
+  },
+  {
+    "title": "2026-11-17-visual-open-file",
+    "file": "assets/exports/2026-11-17-visual-open-file.jpg",
+    "kind": "Concept mockup screenshot",
+    "caption": "White and ink reference layout with electric blue actions and numbered starter policies.",
+    "usage": "Ready as labeled visual concept evidence; not selected or deployed",
+    "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
+    "alt": "White and ink reference layout with electric blue actions and numbered starter policies."
+  },
+  {
+    "title": "2026-11-17-visual-spotlight",
+    "file": "assets/exports/2026-11-17-visual-spotlight.jpg",
+    "kind": "Concept mockup screenshot",
+    "caption": "Charcoal and signal yellow homepage with a decisive own-policy action.",
+    "usage": "Ready as labeled visual concept evidence; not selected or deployed",
+    "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
+    "alt": "Charcoal and signal yellow homepage with a decisive own-policy action."
+  },
+  {
+    "title": "2026-11-17-visual-margin-notes",
+    "file": "assets/exports/2026-11-17-visual-margin-notes.jpg",
+    "kind": "Concept mockup screenshot",
+    "caption": "Annotated reading layout with an exact quote and a condition-preserving illustrative note.",
+    "usage": "Ready as labeled visual concept evidence; not selected or deployed",
+    "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
+    "alt": "Annotated reading layout with an exact quote and a condition-preserving illustrative note."
+  },
+  {
+    "title": "2026-11-17-visual-plain-talk",
+    "file": "assets/exports/2026-11-17-visual-plain-talk.jpg",
+    "kind": "Concept mockup screenshot",
+    "caption": "Tomato and navy conversational homepage with three tactile starter cards.",
+    "usage": "Ready as labeled visual concept evidence; not selected or deployed",
+    "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
+    "alt": "Tomato and navy conversational homepage with three tactile starter cards."
+  },
+  {
+    "title": "2026-11-17-visual-plain-talk-mobile",
+    "file": "assets/exports/2026-11-17-visual-plain-talk-mobile.jpg",
+    "kind": "Concept mockup screenshot",
+    "caption": "Plain Talk visual study at a 390-pixel width without horizontal overflow.",
+    "usage": "Ready as labeled visual concept evidence; not selected or deployed",
+    "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
+    "alt": "Plain Talk visual study at a 390-pixel width without horizontal overflow."
+  }
+]

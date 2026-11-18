@@ -1,0 +1,23 @@
+[
+  {
+    "source": "/Users/jcw/Documents/Codex/2026-11-10/i-think-you-got-soem-more/bite-sized-privacy-policy/README.md",
+    "file": "evidence/project-records/README.md",
+    "bytes": 4424,
+    "sha256": "0f01c5a0b8e76f91ed323f7056c59b72f08c29230a11a5c8284f97ec84ec6ca6",
+    "category": "source document"
+  },
+  {
+    "source": "/Users/jcw/Documents/Codex/2026-11-12/okay-so-i-want-to-make/backfill-work/graphics/privacy-review-flow.svg",
+    "file": "assets/source/backfill/privacy-review-flow.svg",
+    "bytes": 3082,
+    "sha256": "8ad869619de04d3ba668df103248933df33a1ff65b2ae57e88b6e9cfa45744de",
+    "category": "asset"
+  },
+  {
+    "source": "/Users/jcw/Documents/Codex/2026-11-12/okay-so-i-want-to-make/backfill-work/graphics/privacy-review-flow.png",
+    "file": "assets/exports/backfill/privacy-review-flow.png",
+    "bytes": 72799,
+    "sha256": "ab239a5e3c7ce1d8e7a61eeee2a1248f5d16b32fd396080da8674c695b216f0d",
+    "category": "asset"
+  }
+]
