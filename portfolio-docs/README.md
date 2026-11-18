@@ -37,3 +37,4 @@ Keep new work current at meaningful checkpoints. Add evidence before replacing u
 - [Connected local flow milestone](journal/2026-11-17-flow-integration.md)
 - [Entry UX reset](journal/2026-11-17-entry-ux-reset.md)
 - [Homepage visual language exploration](journal/2026-11-17-visual-language-exploration.md)
+- [Agent guidance checkpoint](journal/2026-11-18-agent-guidance.md)

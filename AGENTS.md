@@ -16,12 +16,15 @@ Plainer helps people understand privacy policies through short, readable claims 
 - An exact quote proves a text match, not that a paraphrase is accurate. Do not label model output legally verified or infer policy practices that are not supported. Review representative real-policy outputs for readability, repetition, context, and faithfulness when changing decomposition.
 - Some official sites block automated fetching or return region-specific versions. Record source URL, version or scope when known, and be honest about extraction limits. The OpenAI policy returned HTTP 403 to the command-line fetcher during a prior audit.
 - Benchmarks can help answer a concrete question, but the user has prioritized a useful end-to-end experience over immediately building a comprehensive benchmark suite.
+- The user wants two reading depths: a short, intent-focused user mode and a more granular lawyer mode. User mode is a selective overview, so show how much source material is not summarized and keep the complete policy easy to open. Neither mode implies legal review.
+- The three homepage policies should open from saved, dated analyses rather than triggering a fresh import or model call on every visit. The user explicitly preferred saved results over a runtime cache. Refresh those snapshots deliberately when source policies change; show the source fetch date and do not silently treat a saved version as current.
 
 ## Project map and verification
 
 - `app/` contains the local interface; `scripts/serve.mjs` serves it and the local API. `tooling/` handles intake, source decomposition, model claims, and validation. `portfolio-docs/` records project decisions and evidence.
 - Use Node.js 22+. Run `npm run dev` with `OPENAI_API_KEY` in the server environment for live claims, `npm test` for the suite, and `npm run build` to generate `app/dist/`. Never commit credentials or private policy text. The generated `app/dist/` is ignored.
 - The local flow and hosted static prototype are distinct; do not imply a local change has been deployed. Topic classification still uses text matching, and model paraphrases remain unverified.
+- The saved-policy implementation is on `codex/reading-modes-saved` until merged. When present, its `app/data/featured/` files contain the source and both reading modes for Meta, TikTok US, and YouTube/Google; `npm run save-featured` regenerates them with a server-side key. The homepage opens the saved user overview directly. Policies readers add still use the live server pipeline, which runs bounded model groups concurrently. Check the target branch before relying on these paths.
 - For meaningful changes, run checks appropriate to the scope. For UI work, inspect the actual rendered states and responsive layout. When the user asks for critique or testing, iterate on issues found and be clear about what was and was not verified.
 
 ## Collaboration and Git
