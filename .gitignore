@@ -8,3 +8,7 @@ uploads/
 
 # Generated site bundle
 app/dist/
+
+# Generated report previews
+output/pdf/
+tmp/pdfs/

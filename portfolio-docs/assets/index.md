@@ -109,3 +109,25 @@ Provenance: Codex, November 17, 2026, based on the implemented tooling. Usage: r
 | Spotlight · agency | [Desktop study](exports/2026-11-17-visual-spotlight.jpg) | Charcoal and signal yellow composition with a large headline and direct own-policy action. |
 | Margin Notes · context | [Desktop study](exports/2026-11-17-visual-margin-notes.jpg) | Cool gray and cobalt reading layout showing an illustrative exact quote beside a condition-preserving plain-language note. |
 | Plain Talk · approachability | [Desktop study](exports/2026-11-17-visual-plain-talk.jpg) · [390-pixel study](exports/2026-11-17-visual-plain-talk-mobile.jpg) | Tomato and navy conversational homepage with an own-policy action and three tactile starter cards; the second image shows its narrow layout. |
+
+## Reaction-focused UX before-states — November 18, 2026
+
+Three supplied screenshots showed the graph-paper application before the interaction revision: small homepage marks with a depth gate, text-link review tools and uncontained topic progress, and a dispersed report with Undo and no reaction map. These images were available as visual references, but their temporary source files were unavailable when archival copying was attempted. No local before-state copies or revised-app screenshots are recorded for this pass.
+
+The supplied Byline reference contributed the idea of a colored block distribution only; its subject matter and authorship metrics were not transferred into the product.
+
+## Personal PDF report — November 18, 2026
+
+[Sample first page](exports/2026-11-18-report-pdf-sample.jpg) is a Poppler rendering of the actual PDF generator output. It uses the saved Instagram overview and explicitly labeled synthetic responses for layout review. All three pages were inspected; this asset shows the priorities, totals, and first concerned claim. It verifies the generated document’s appearance only, not the browser interface or a real reader’s reactions. See the [verification journal](../journal/2026-11-18-priorities-and-pdf-reports.md).
+
+## Single-column and PDF packaging before-states
+
+Provided screenshots from November 18, 2026; these document the previous state and do not verify the revised layout.
+
+- [Homepage with saved-review sidebar](exports/2026-11-18-home-before-single-column.jpg)
+- [Topic map with side labels and count badges](exports/2026-11-18-topic-map-before-stack.jpg)
+- [Unresolved pako dependency during PDF download](exports/2026-11-18-pdf-bare-import-error.jpg)
+
+## Attention-only PDF — November 18, 2026
+
+- [Final page and unreviewed coverage](exports/2026-11-18-pdf-attention-summary.jpg): actual two-page PDF output with synthetic responses; rendered with Poppler and inspected. Only Concerned and Unsure claim details are included. This is document-layout evidence, not browser verification.

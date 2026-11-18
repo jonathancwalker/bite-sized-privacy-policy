@@ -1,0 +1,35 @@
+{
+  "method": "WCAG relative luminance of declared CSS colors; no browser rendering or accessibility audit",
+  "pairs": {
+    "comfortable-fill": {
+      "foreground": "#205b47",
+      "background": "#a5d6bf",
+      "ratio": 4.9
+    },
+    "comfortable-wash": {
+      "foreground": "#205b47",
+      "background": "#eef8f2",
+      "ratio": 7.3
+    },
+    "concern-fill": {
+      "foreground": "#7d3038",
+      "background": "#edacb1",
+      "ratio": 4.74
+    },
+    "concern-wash": {
+      "foreground": "#7d3038",
+      "background": "#fff1f2",
+      "ratio": 8.13
+    },
+    "unsure-fill": {
+      "foreground": "#6e4d11",
+      "background": "#edcd80",
+      "ratio": 4.99
+    },
+    "unsure-wash": {
+      "foreground": "#6e4d11",
+      "background": "#fff8e8",
+      "ratio": 7.26
+    }
+  }
+}
