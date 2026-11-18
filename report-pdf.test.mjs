@@ -1,12 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import * as pdfLib from 'pdf-lib';
-import fontkit from '@pdf-lib/fontkit';
+import {readAppAsset} from './scripts/assets.mjs';
 import {getDocument} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {createReportPdf} from './app/report-pdf.js';
 
-const fontBytes=await readFile(new URL('./app/fonts/instrument-sans.ttf',import.meta.url));
+// Exercise the delivered browser bundles, without Node resolving their imports.
+async function standalone(name){
+  const source=await readAppAsset(name);
+  return import(`data:text/javascript;base64,${source.toString('base64')}`)
+    .catch(error=>{throw new Error(error.message.split(' from ')[0]);});
+}
+const [pdfLib,{default:fontkit},fontBytes]=await Promise.all([
+  standalone('vendor/pdf-lib.js'),standalone('vendor/fontkit.js'),
+  readFile(new URL('./app/fonts/instrument-sans.ttf',import.meta.url))
+]);
 const options={...pdfLib,fontkit,fontBytes};
 const sample={title:'Example report',generatedAt:'2026-11-18T12:00:00Z',priorities:['Retention and deletion','Advertising and tracking'],
   totals:{comfortable:1,concern:1,clarify:1,skipped:0,unseen:0},reviewed:3,total:3,depth:'Quick overview',coverage:'Selected themes only.',

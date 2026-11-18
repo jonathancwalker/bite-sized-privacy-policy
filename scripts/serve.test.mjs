@@ -143,3 +143,16 @@ test('PDF generation libraries are served locally without exposing arbitrary dep
     assert.equal((await fetch(`${base}/node_modules/pdf-lib/package.json`)).status,404);
   });
 });
+
+test('the served PDF font module loads without Node package resolution for pako', async () => {
+  await withServer({apiKey:null},async base=>{
+    const response=await fetch(`${base}/vendor/fontkit.js`);
+    assert.equal(response.status,200);
+    // A data URL has no node_modules parent. Bare imports fail here just as
+    // they do in the app, which deliberately has no import map or CDN.
+    const source=await response.text();
+    const fontkit=await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
+      .catch(error=>{throw new Error(error.message.split(' from ')[0]);});
+    assert.equal(typeof fontkit.default.create,'function');
+  });
+});
