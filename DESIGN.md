@@ -24,7 +24,7 @@ The interface uses Instrument Sans and white cards with thin blue-gray borders. 
 
 - Keep the homepage in one centered column capped at 560px, including when a review is saved. Large, optically balanced policy marks and labels share one bordered tile.
 - Quick overview is selected by default. The compact pill toggle also offers Lawyer mode. A short explanation changes underneath in primary ink on a uniformly pale blue surface with no accent stripe; the selected pill slides between positions. There is no mandatory selection step.
-- Priority areas opens a modal with staged selections and Done/Cancel. Preferences reorder and highlight without removing claims; absent topics remain selected across reload. A compact saved-review card sits below policy entry, showing the platform, reviewed count, and resume/report action without reaction tiles.
+- Priority areas opens a modal with staged selections and Done/Cancel. Preferences reorder and highlight without removing claims; absent topics remain selected across reload. A compact saved-review card sits below policy entry, showing the platform, reviewed count, and resume/report action without reaction tiles. The entire card is one native button with hover/focus feedback; the action label is not a separate control.
 - Upload, Paste, and URL appear immediately when the own-policy panel opens. Source preview still precedes model analysis.
 
 ## Review

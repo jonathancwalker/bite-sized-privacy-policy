@@ -492,9 +492,12 @@ test('lawyer mode changes the explanation below the depth pill', async () => {
   assert.doesNotMatch(app.root.innerHTML,/The big picture in a handful of cards/);
 });
 
-test('a saved Instagram review keeps its count and report action without a homepage tile grid', async () => {
+test('the whole saved Instagram card opens its report as one native button', async () => {
   const app=await client({...twoCards,screen:'report',source:{catalogId:'meta'},responses:{'point-001':{reaction:'comfortable'}}});
-  assert.match(app.root.innerHTML,/<section class="saved-review"/);
+  const card=app.root.innerHTML.match(/<button\b[^>]*class="saved-review"[^>]*>([\s\S]*?)<\/button>/);
+  assert.ok(card,'the entire saved-review card is a native button');
+  assert.match(card[0],/data-action="resume"/);
+  assert.doesNotMatch(card[1],/<(?:button|a)\b/,'no nested interactive controls');
   assert.match(app.root.innerHTML,/Instagram review/);
   assert.match(app.root.innerHTML,/<strong>1 \/ 2<\/strong> reviewed/);
   assert.match(app.root.innerHTML,/Open report/);
