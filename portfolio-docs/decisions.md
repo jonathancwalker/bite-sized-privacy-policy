@@ -113,3 +113,10 @@ Date: 2026-11-18. Status: implemented locally; PDF rendering checked, browser UI
 Priority selection moves into a staged modal. Platform names replace generic headings, and contextual instructions move into help and source dialogs. Progress records first-response order, with source-order fallback for legacy data. The report retains the topic map and Needs attention details only. PDF export leads with priorities and totals, omits comfortable details, and preserves source wording for the remaining claims. Generation is local to the browser; the complete source record is available separately.
 
 Evidence: [implementation and verification journal](journal/2026-11-18-priorities-and-pdf-reports.md), [PDF generator](../app/report-pdf.js), [document tests](../report-pdf.test.mjs), [shared design rules](../DESIGN.md).
+
+## D15 — Restore one homepage column and stack topic groups
+Date: 2026-11-18. Status: implemented locally; browser layout verification pending.
+
+The homepage uses a plain canvas and a single centered column. The saved review retains its platform, reviewed count, and resume/report action below policy entry, without a reaction grid. The depth explanation loses its accent stripe. Report topic headings sit above the claim squares without numeric badges. Browser PDF dependencies share one bundling path across serving and static builds after a bare package import prevented export.
+
+Evidence: [before-states and regression results](journal/2026-11-18-single-column-and-pdf-packaging.md), [shared asset reader](../scripts/assets.mjs).

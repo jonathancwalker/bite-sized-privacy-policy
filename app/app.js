@@ -106,7 +106,7 @@ function claimMap(){
   return `<section class="claim-map-panel" aria-label="Reactions by topic"><div class="map-heading"><h2>Reactions by topic</h2></div>
     <div class="claim-map" role="group" aria-label="Claims grouped by topic">${groups().map(topic=>{
       const list=ordered().filter(p=>p.topic===topic);
-      return `<section class="map-category"><div class="map-category-heading"><h3>${escape(TOPICS[topic].label)}</h3><span class="topic-total" aria-label="${list.length} claims">${list.length}</span></div><div class="claim-tiles">${list.map(p=>{
+      return `<section class="map-category"><h3>${escape(TOPICS[topic].label)}</h3><div class="claim-tiles">${list.map(p=>{
         const status=statusOf(p), label=reactions[status]||'Not reviewed', text=response(p.id).rewording||(p.model?p.title:p.text.trim());
         return `<button class="claim-tile" data-action="point" data-id="${p.id}" data-map-id="${p.id}" data-state="${status}" aria-label="Claim ${++index}: ${label}. ${escape(text)}" title="${escape(label+': '+text)}"><span aria-hidden="true">${reactionMarks[status]}</span></button>`;
       }).join('')}</div></section>`;
@@ -141,13 +141,13 @@ function openPriorities(){
   };
 }
 function pasteView(){
-  return `<div class="home-layout ${state?'has-resume':''}"><section class="entry-home">
+  return `<div class="home-layout"><section class="entry-home">
     <h1>Privacy policies,<br><em>plainer.</em></h1>
     <div class="entry-setup"><div class="entry-section-title"><h2>Review a policy</h2>${modeChoice()}</div>${intakeFocus()}</div>
     <div class="policy-logos">${featuredPolicies.map(item=>`<button class="policy-logo" data-action="featured" data-id="${item.id}" ${busy?'disabled':''} aria-label="Open ${escape(item.name)} privacy policy"><span class="policy-logo-mark ${item.id}">${policyMarks[item.id]}</span><span>${escape(item.id==='meta'?'Instagram':item.id==='youtube-google'?'YouTube':item.name)}</span></button>`).join('')}</div>
     ${busy&&!ownOpen?`<p class="entry-status" role="status">${escape(busy)}</p>`:''}${importError&&!ownOpen?`<p class="entry-error" role="alert">${escape(importError)}</p>`:''}
     <div class="own-disclosure ${ownOpen?'open':''}"><button class="own-toggle" data-action="own" aria-expanded="${ownOpen}" aria-controls="own-panel">Review my own policy <span aria-hidden="true">${ownOpen?'−':'+'}</span></button><div id="own-panel" class="own-panel" ${ownOpen?'':'inert'}><div>${importView(true)}</div></div></div>
-  </section>${state?`<aside class="resume-sidebar" aria-label="Saved review"><h2>${escape(platformName())} review</h2><p><strong>${reviewed().length} / ${points().length}</strong> reviewed</p>${reactionTrail()}<button class="secondary" data-action="resume">${state.screen==='report'?'Open report':'Continue review'} <span aria-hidden="true">↗</span></button></aside>`:''}</div>`;
+  </section>${state?`<section class="saved-review" aria-label="Saved review"><div><h2>${escape(platformName())} review</h2><p><strong>${reviewed().length} / ${points().length}</strong> reviewed</p></div><button class="secondary" data-action="resume">${state.screen==='report'?'Open report':'Continue review'} <span aria-hidden="true">↗</span></button></section>`:''}</div>`;
 }
 function importView(inline=false){
   const tabs=[['upload','Upload'],['paste','Paste'],['url','URL']];

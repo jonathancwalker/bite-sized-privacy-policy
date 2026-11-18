@@ -1,12 +1,12 @@
 # Plainer visual foundation
 
-The interface uses pale graph paper, Instrument Sans, and white cards with thin blue-gray borders. Reading, progress, controls, and report content sit on opaque surfaces. Reserve the grid for space between them.
+The interface uses Instrument Sans and white cards with thin blue-gray borders. The homepage has a plain canvas; review and report retain pale graph paper between opaque reading surfaces.
 
 ## Shared choices
 
 | Role | Value / treatment |
 | --- | --- |
-| Canvas | `#fcfdff`, 28px square grid at low opacity |
+| Canvas | `#fcfdff`; plain on home, 28px low-opacity square grid elsewhere |
 | Surfaces | White, 1px `#cbd8e5` border, 7px corners |
 | Primary / secondary text | `#29333e` / `#627285` |
 | Action and focus accent | `#4265be`; selected surface `#f0f5ff` |
@@ -22,9 +22,9 @@ The interface uses pale graph paper, Instrument Sans, and white cards with thin 
 
 ## Entry
 
-- Large, optically balanced policy marks and labels share one bordered tile.
-- Quick overview is selected by default. The compact pill toggle also offers Lawyer mode. A short explanation changes underneath in primary ink on a pale blue surface; the selected pill slides between positions. There is no mandatory selection step.
-- Priority areas opens a modal with staged selections and Done/Cancel. Preferences reorder and highlight without removing claims; absent topics remain selected across reload. A saved review sits beside the main homepage column and below it on mobile.
+- Keep the homepage in one centered column capped at 560px, including when a review is saved. Large, optically balanced policy marks and labels share one bordered tile.
+- Quick overview is selected by default. The compact pill toggle also offers Lawyer mode. A short explanation changes underneath in primary ink on a uniformly pale blue surface with no accent stripe; the selected pill slides between positions. There is no mandatory selection step.
+- Priority areas opens a modal with staged selections and Done/Cancel. Preferences reorder and highlight without removing claims; absent topics remain selected across reload. A compact saved-review card sits below policy entry, showing the platform, reviewed count, and resume/report action without reaction tiles.
 - Upload, Paste, and URL appear immediately when the own-policy panel opens. Source preview still precedes model analysis.
 
 ## Review
@@ -37,7 +37,7 @@ The interface uses pale graph paper, Instrument Sans, and white cards with thin 
 
 ## Report
 
-- Use a platform-specific report heading. Summary, topic map, Needs attention, and utilities each have a bordered surface. Only concerned and unsure claims are expanded below the map; other cards remain reachable through their squares. Topic counts use clear badges, not small gray captions.
+- Use a platform-specific report heading. Summary, topic map, Needs attention, and utilities each have a bordered surface. Only concerned and unsure claims are expanded below the map; other cards remain reachable through their squares. Each topic heading sits above its full-width tile group, without a card-count badge.
 - Each map square represents exactly one claim, grouped by topic. Its symbol/color records a stored response, not a pending selection. Hover exposes wording through a native title; accessible names include the wording and status; click returns to that claim.
 - Fine-pointer squares are 28px with 6px gaps; coarse-pointer squares are 44px. Other primary controls are at least 44px high. The entire square is interactive.
 - Skipped and unseen remain separate. All wording and source disclosures remain available by revisiting a square and in the complete source record.
@@ -45,7 +45,7 @@ The interface uses pale graph paper, Instrument Sans, and white cards with thin 
 
 ## PDF report
 
-- Generate the file locally in the browser, using self-hosted PDF/font libraries and Instrument Sans. Export does not send reactions or source text to a service.
+- Generate the file locally in the browser, using self-hosted PDF/font libraries and Instrument Sans. Bundle transitive dependencies into standalone ES modules through the shared serving/build asset reader. Export does not send reactions or source text to a service.
 - Put chosen priorities and five response totals first. Follow with concerned, unsure, skipped, and unseen claims in that order; omit comfortable claim details.
 - Preserve exact source wording and cited context with each included claim. Paginate long passages, label continuations, and retain readable margins and page numbers.
 - Use the same graph-paper margin, white reading surfaces, and reaction colors as the app. The complete source record remains a separate text download in Review menu.

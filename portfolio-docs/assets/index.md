@@ -119,3 +119,11 @@ The supplied Byline reference contributed the idea of a colored block distributi
 ## Personal PDF report — November 18, 2026
 
 [Sample first page](exports/2026-11-18-report-pdf-sample.jpg) is a Poppler rendering of the actual PDF generator output. It uses the saved Instagram overview and explicitly labeled synthetic responses for layout review. All three pages were inspected; this asset shows the priorities, totals, and first concerned claim. It verifies the generated document’s appearance only, not the browser interface or a real reader’s reactions. See the [verification journal](../journal/2026-11-18-priorities-and-pdf-reports.md).
+
+## Single-column and PDF packaging before-states
+
+Provided screenshots from November 18, 2026; these document the previous state and do not verify the revised layout.
+
+- [Homepage with saved-review sidebar](exports/2026-11-18-home-before-single-column.jpg)
+- [Topic map with side labels and count badges](exports/2026-11-18-topic-map-before-stack.jpg)
+- [Unresolved pako dependency during PDF download](exports/2026-11-18-pdf-bare-import-error.jpg)

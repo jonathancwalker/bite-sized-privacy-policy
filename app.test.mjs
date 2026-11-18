@@ -492,12 +492,26 @@ test('lawyer mode changes the explanation below the depth pill', async () => {
   assert.doesNotMatch(app.root.innerHTML,/The big picture in a handful of cards/);
 });
 
-test('a saved Instagram review sits beside the homepage instead of above policy entry', async () => {
-  const app=await client({...twoCards,source:{catalogId:'meta'}});
-  assert.match(app.root.innerHTML,/<aside class="resume-sidebar"/);
+test('a saved Instagram review keeps its count and report action without a homepage tile grid', async () => {
+  const app=await client({...twoCards,screen:'report',source:{catalogId:'meta'},responses:{'point-001':{reaction:'comfortable'}}});
+  assert.match(app.root.innerHTML,/<section class="saved-review"/);
   assert.match(app.root.innerHTML,/Instagram review/);
-  assert.doesNotMatch(app.root.innerHTML,/Your current review/);
-  assert.ok(app.root.innerHTML.indexOf('policy-logos')<app.root.innerHTML.indexOf('resume-sidebar'));
+  assert.match(app.root.innerHTML,/<strong>1 \/ 2<\/strong> reviewed/);
+  assert.match(app.root.innerHTML,/Open report/);
+  assert.doesNotMatch(app.root.innerHTML,/Your current review|data-trail-id|resume-sidebar/);
+  assert.ok(app.root.innerHTML.indexOf('policy-logos')<app.root.innerHTML.indexOf('saved-review'));
+  app.click('resume');
+  assert.equal(app.run('screen'),'report');
+});
+
+test('topic groups retain every clickable card without count badges',async()=>{
+  const app=await client(followUpCards);
+  const map=app.run('claimMap()');
+  assert.doesNotMatch(map,/topic-total|aria-label="\d+ claims"/);
+  assert.match(map,/<h3>Data collection<\/h3>/);
+  assert.equal([...map.matchAll(/data-map-id="point-/g)].length,5);
+  app.click('point','point-003');
+  assert.equal(app.run('current().id'),'point-003');
 });
 
 test('review chrome names the platform and exposes help without repeated labels', async () => {
