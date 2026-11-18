@@ -488,7 +488,7 @@ test('lawyer mode changes the explanation below the depth pill', async () => {
   assert.match(app.root.innerHTML,/The big picture in a handful of cards/);
   app.click('reading-depth',undefined,1,{mode:'lawyer'});
   assert.match(app.root.innerHTML,/Lawyer mode/);
-  assert.match(app.root.innerHTML,/More detail, one claim at a time/);
+  assert.match(app.root.innerHTML,/More detail, no law degree needed\./);
   assert.doesNotMatch(app.root.innerHTML,/The big picture in a handful of cards/);
 });
 
