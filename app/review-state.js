@@ -147,7 +147,7 @@ function restoreSingleReview(saved) {
     responses[id] = response;
   }
   let queue = null;
-  if (object(saved.queue) && ['attention','unfinished','skipped'].includes(saved.queue.kind) &&
+  if (object(saved.queue) && ['attention','unfinished','skipped','unsure'].includes(saved.queue.kind) &&
       Array.isArray(saved.queue.ids)) {
     const queueIds = [...new Set(saved.queue.ids.filter(id => ids.has(id)))];
     if (queueIds.length) queue = {kind:saved.queue.kind, ids:queueIds};

@@ -319,3 +319,43 @@ test('a newly prepared depth survives reload and returning to the prior depth ne
   assert.equal(reloaded.run('screen'),'review');
   assert.equal(reloaded.run('response(current().id).reaction'),'concern');
 });
+
+const completedWithUncertainty={...followUpCards,responses:{
+  'point-001':{reaction:'comfortable'},'point-002':{reaction:'concern'},
+  'point-003':{reaction:'clarify'},'point-004':{reaction:'comfortable'},'point-005':{reaction:'clarify'}
+}};
+
+test('Revisit cards opens only unsure cards and preserves that round after reload', async () => {
+  const app=await client(completedWithUncertainty);
+  app.run("setScreen('report')");
+  const action=app.root.innerHTML.match(/data-action="([^"]+)"[^>]*>Revisit cards<\/button>/)?.[1];
+  assert.ok(action,'Report must offer Revisit cards for uncertainty');
+  app.click(action);
+  assert.equal(app.run('current().id'),'point-003');
+  app.click('react','comfortable');app.click('confirm');
+  const reloaded=await client(JSON.parse(app.run('localStorage.getItem(KEY)')));
+  reloaded.click('resume');
+  assert.equal(reloaded.run('current().id'),'point-005');
+  assert.match(reloaded.root.innerHTML,/2 of 2/);
+  reloaded.click('confirm');
+  assert.equal(reloaded.run('screen'),'report');
+});
+
+test('Back to report exits an unsure round immediately without confirming a pending answer', async () => {
+  const app=await client(completedWithUncertainty);
+  app.click('review-unsure');
+  assert.equal(app.run('screen'),'review');
+  assert.match(app.root.innerHTML,/data-action="report"[^>]*>Back to report<\/button>/);
+  app.click('react','comfortable');
+  app.click('report');
+  assert.equal(app.run('screen'),'report');
+  assert.equal(app.run('state.responses["point-003"].reaction'),'clarify');
+  assert.match(app.root.innerHTML,/Accepted · 2/);
+});
+
+test('a review with no unsure cards offers no restart disguised as Revisit cards', async () => {
+  const app=await client({...twoCards,responses:{'point-001':{reaction:'comfortable'},'point-002':{reaction:'concern'}}});
+  assert.doesNotMatch(app.run('reportView()'),/>Revisit cards<\/button>/);
+  app.click('review-unsure');
+  assert.equal(app.run('screen'),'report');
+});

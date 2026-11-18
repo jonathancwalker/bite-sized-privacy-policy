@@ -28,3 +28,10 @@
 
 - Stable queue membership prevents navigation errors when an action changes the filter that originally selected the items.
 - Different reading depths are distinct representations: share their source, but keep decisions and progress separate.
+
+## Unsure-only revisit and direct report return
+
+- Revisit cards opens a fixed round of unsure cards instead of restarting the full review; the action is hidden when no unsure cards remain.
+- Every card has a visible Back to report button. Leaving through it does not confirm an uncommitted selection. The final confirmation is labeled Finish round to distinguish saving from leaving.
+- Three added regressions failed before the correction and now pass: the rendered revisit action targets only unsure cards through reload, direct return preserves the previous answer, and no-uncertainty reports do not offer a misleading restart.
+- All 89 tests and the static build pass. Browser rendering remains unchecked.
