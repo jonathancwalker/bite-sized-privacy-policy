@@ -1,81 +1,60 @@
 # Plainer
 
-Plainer helps people read privacy policies through short claims linked to exact source wording. Readers choose a policy and reading depth, review one claim at a time, record personal reactions, and export a report that keeps unfinished material visible.
+Privacy policies, in plain language.
+
+## Intended audience
+
+- People who want to understand how apps collect and use their data.
+
+## Problem / opportunity
+
+- Privacy policies are long and hard to follow. Plainer turns them into readable cards linked to the original wording.
+
+## Primary user flow
+
+1. Choose Instagram, TikTok, or YouTube—or upload, paste, or link your own policy.
+2. Use **Quick overview** or **Lawyer mode**; optionally choose priority areas.
+3. Mark cards **Comfortable**, **Concerned**, **Unsure**, or skip them. Check the source or rephrase a card when needed.
+4. Explore your report, revisit cards, and download a PDF of concerns and uncertainty, with an unreviewed count.
+
+## Technical stack
+
+- HTML, CSS, and JavaScript interface; Node.js server.
+- Browser storage saves review progress.
+- pdf-lib and fontkit create PDFs; pdfjs-dist reads uploaded PDFs; esbuild packages browser libraries.
+
+## API used
+
+- **OpenAI Responses API:** creates plain-language claims and rephrases cards to help readers understand a policy.
+- Analysis and rephrasing send policy text to OpenAI. The API key stays on the server.
 
 ## Run locally
 
-Requires Node.js 22 or newer.
+- Install **Node.js 22+**, then run from the repository folder:
 
 ```sh
 npm ci
 npm run dev
-# Open http://127.0.0.1:4173
 ```
 
-The saved Instagram/Meta, TikTok US, and YouTube/Google reviews work without an API key. New analyses and rewording require `OPENAI_API_KEY` in the server environment. To load a private local environment file, use `node --env-file=/absolute/path/to/.env scripts/serve.mjs`. Never commit credentials. Set `PORT=4174` if the default port is occupied.
-
-The Node server is a local development server. Its API accepts requests addressed to localhost or loopback, with a matching browser origin. Public hosting needs a separate deployment design with authentication, request limits, and server-side secrets.
-
-## Current experience
-
-1. Choose a featured policy or expand **Review my own policy**.
-2. Choose **Quick overview** or **Detailed review** before proceeding.
-3. For an own policy, upload TXT/RTF/DOCX/text-PDF, paste text, or enter a public HTTPS URL; check the extracted text before analysis.
-4. Open the first card directly. Single-click **Accept**, **Reject**, **I’m unsure**, or **Skip** to select; **Next** confirms and advances. Double-click a response as a shortcut. **Undo last response** reverses the latest confirmation. **Reword** asks for a rebuilt explanation; original wording stays available through **Check source**. Topic ordering is optional in Review settings.
-5. Resume the review later or open a report grouped into Needs attention, Left to review, and Accepted. **Revisit cards** opens only unsure cards; **Review my concerns** revisits rejected and unsure cards; **Finish skipped cards** revisits only skipped cards; **Continue review** includes skipped and unseen cards. **Back to report** exits a round immediately without confirming a pending selection. Completing a round also returns to the full report. Unsure needs no note or question. Reactions do not accept, amend, or negotiate a policy.
-6. **Change depth** from Review settings or the report. Each depth keeps its own confirmed reactions, rewordings, position, and follow-up queue. An overview acceptance never accepts detailed claims automatically. Reopening the same saved featured policy also preserves this progress.
-
-Quick overview selects a few themes and explicitly leaves some source material unsummarized. Detailed review produces more granular cards, including exact-source fallback passages when needed. Neither mode implies legal review. The current saved overviews have 8 Meta, 4 TikTok US, and 10 Google cards; detailed reviews have 174, 121, and 291 respectively.
-
-The [feature inventory](FEATURE_LIST.md) is the current backlog. [Portfolio decisions](portfolio-docs/decisions.md) and [experiments](portfolio-docs/experiments.md) retain historical iterations; earlier screenshots and descriptions may differ from current code. The separate `/concepts.html` gallery contains three visual-only studies: Clear, Grounded, and Signal.
-
-## Data and source integrity
-
-- One policy, with separate progress for each prepared reading depth, is saved in the browser's local storage. Reactions and notes are not sent to the policy provider. Clearing or replacing a review is explicit; restricted storage may prevent recovery.
-- Own-policy text goes to the local server and OpenAI for claim generation. Rewording sends the selected claim and its source/context. Model requests use `store:false`; this is not a guarantee of zero provider retention.
-- Intake records provenance and extraction warnings. The app accepts up to 80,000 characters or a 12 MiB file. URL downloads are limited to 3 MB and 15 seconds; every destination is checked, and production HTTPS connections use the validated public DNS addresses.
-- Source decomposition preserves exact text and offsets. Model claims must cite their assigned source units; optional context must cite a neighboring unit. Malformed entries are rejected, and failures keep the source available.
-- Exact quote matching proves the citation exists. It does **not** prove that a paraphrase preserves meaning. Claim quality, broad coverage, and cross-clause dependencies still need evaluation.
-- Saved reviews are validated before recovery. Invalid saved data produces a recovery notice without clearing it. Exports include the source URL, fetch date and scope when recorded, claims and reactions from the active reading depth, and the complete original text. Printing expands unfinished claims and source disclosures.
-
-## Saved featured policies
-
-`app/data/featured/` contains dated source text and both analyses for the three homepage policies. They are prepared files, not a runtime cache. Opening a featured review or switching its mode does not fetch the original policy or call a model.
+- Open [localhost:4173](http://127.0.0.1:4173). Saved featured policies work without an API key.
+- For AI features, stop the server, create `.env` containing `OPENAI_API_KEY=your_key`, then run:
 
 ```sh
-npm run save-featured                 # Refetch and regenerate both modes
-npm run save-featured -- meta         # Refresh one policy
-npm run refresh-featured-overviews    # Regenerate only overviews from saved text
+node --env-file=.env scripts/serve.mjs
 ```
 
-These commands require a server-side key. A failed refresh preserves the previous file. Display the original source fetch date; a regenerated overview does not make its source current.
+- Checks: `npm test`. Static build: `npm run build`.
 
-## Project map
+## Known limitations
 
-| Location | Responsibility |
-| --- | --- |
-| `app/app.js` | Screen rendering, navigation, reactions, report export |
-| `app/review-state.js` | Source validation, card preparation, saved-review recovery |
-| `app/engine.js` | Deterministic exact-passage fallback and topic classification |
-| `scripts/serve.mjs` | Local static server and import/decompose/reword API |
-| `scripts/assets.mjs` | Shared asset manifest for serving and builds |
-| `tooling/` | Intake, extraction, source decomposition, model validation and audits |
-| `portfolio-docs/` | Decisions, historical evidence, experiments and screenshots |
+- AI can miss meaning; Quick overview leaves some material out. This is not legal advice.
+- Featured policies are dated snapshots, not automatically refreshed.
+- Progress stays in one browser, with one policy saved at a time.
+- Some websites block imports; scanned PDFs are not supported.
 
-See [tooling commands and limitations](tooling/README.md) for the policy catalog, CLI and benchmark.
+## What I would improve next
 
-## Checks and build
-
-```sh
-npm test
-npm run build
-npm run benchmark  # Six deterministic synthetic cases; no model requests
-```
-
-The test suite covers exact source recovery, claim validation, intake, local API behavior, saved-review recovery and static assets. HTTP integration tests bind a loopback port; the PDF test requires the installed `pdfjs-dist` dependency. Tests inject model responses and do not require an API key. Client state tests are not browser layout checks.
-
-The GitHub Actions workflow runs installation, the full suite and the build on pull requests and pushes to `main` using Node 22. It does not run live model evaluations.
-
-The build copies the runtime assets and saved policies into ignored `app/dist/`, removing stale generated files first. The resulting static site supports saved-policy reviews. Own-policy intake and rewording require the Node API.
-
-The older private hosted prototype is separate from this checkout. Building locally does not deploy it. No new deployment or reader comprehension study is recorded here.
+- Deploy publicly with protected API access and request limits.
+- Test with readers and improve mobile use, accessibility, and clarity.
+- Improve claim accuracy, topic grouping, and policy coverage.
