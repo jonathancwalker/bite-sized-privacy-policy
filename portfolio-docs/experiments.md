@@ -115,3 +115,16 @@ Method: implemented progressive homepage mode selection, a claim-only card with 
 Observed result: saved user overviews now contain 8 Meta, 4 TikTok US, and 10 YouTube/Google cards, versus 174, 121, and 291 detailed cards. The previous overviews had 21, 12, and 30 cards. All 22 refreshed overview cards match exact source spans and have no automated qualifier flags; 73, 48, and 101 source units respectively remain outside their card sets. The browser showed the updated 8-card Meta overview and a priority card with zero handled before the first reaction; a previous local card test advanced from zero to one handled after Accept. A live Reword action returned a shorter alternate phrasing with an AI rewording cue. The automated suite passed 42/42 and the build succeeded.
 
 Interpretation and limits: this supports a smaller, working card flow; it does not measure comprehension, compare reader preference, or establish paraphrase accuracy. Exact source matching only proves the citation exists. The new source grouping may produce varying numbers of cards for other imported policies, including very short documents. The user-mode overview is selective; the full policy remains available. The hosted static prototype has not been updated. Evidence: [implementation journal](journal/2026-11-18-card-review.md), [saved analyses](../app/data/featured/), [client](../app/app.js), [pipeline](../tooling/llm-decompose.mjs).
+
+## E09 — Functional reliability regression checks
+Date: 2026-11-18. Status: local checks complete; socket/PDF/browser verification outstanding.
+
+Question: Can source validation, saved-review recovery and report consistency improve while preserving prepared policy reviews and existing reactions?
+
+Method: reproduce malformed model entries, claims assigned to another batch, private DNS destinations, damaged saved cards, fabricated source ranges, misleading checkpoint copy, missing export provenance, collapsed print disclosures and blank cards in focused tests before fixes. Validate all six featured analyses and legacy state recovery. Run the full suite and static build.
+
+Observed result: 68 tests attempted, 60 passed, seven HTTP integration tests failed with loopback `EPERM`, and one PDF test failed without the unavailable PDF dependency. Installation could not reach the npm registry. Static build, module coverage, syntax and whitespace checks passed. Live server startup was also denied. No live model calls or featured-snapshot changes were made.
+
+Limits: mock transports and direct request-handler checks do not establish real network behavior, rendered layout or semantic fidelity. The CI workflow is configured but has not run remotely. See [cleanup record](journal/2026-11-18-functional-cleanup.md) for the changes and remaining verification.
+
+E09 follow-up: dependency installation succeeded in an unrestricted runtime; the full suite passed 68/68, including HTTP integration and PDF extraction, and the static build passed. This resolves the earlier eight environment failures.

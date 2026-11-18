@@ -37,3 +37,16 @@ test('HTML policy tables retain row and cell cues with an explicit warning', () 
   assert.match(out.text,/Location\s*\|\s*Turn off/);
   assert.ok(out.warnings.some(w=>w.includes('table')));
 });
+test('a public-looking hostname resolving to loopback is rejected before a request', async t => {
+  t.mock.method(globalThis, 'fetch', async () => new Response('We collect email addresses when you create an account.', {headers:{'content-type':'text/plain'}}));
+  await assert.rejects(fetchPolicyUrl('https://policy.example.com/privacy', {
+    lookupImpl:async () => [{address:'127.0.0.1', family:4}]
+  }), /public|private/i);
+});
+
+test('mixed public/private DNS answers cannot reach the private network', async t => {
+  t.mock.method(globalThis, 'fetch', async () => new Response('We collect email addresses when you create an account.', {headers:{'content-type':'text/plain'}}));
+  await assert.rejects(fetchPolicyUrl('https://policy.example.com/privacy', {
+    lookupImpl:async () => [{address:'93.184.216.34', family:4}, {address:'10.0.0.5', family:4}]
+  }), /public|private/i);
+});

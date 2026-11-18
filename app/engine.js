@@ -103,19 +103,29 @@ function rangesFor(text, maxChars = 600, maxWords = 100) {
     if (paragraphEnd > cursor) ranges.push([cursor, paragraphEnd]);
     start = paragraphEnd;
   }
-  return ranges.filter(([a, b]) => b > a);
+  const readable = [];
+  for (const [index, [a, b]] of ranges.entries()) {
+    if (b <= a) continue;
+    if (!text.slice(a, b).trim()) {
+      if (readable.length) readable.at(-1)[1] = b;
+      continue;
+    }
+    // Retain the original passage number so saved reactions still refer to the same text.
+    readable.push([readable.length ? a : 0, b, index + 1]);
+  }
+  return readable.length ? readable : [[0, text.length, 1]];
 }
 
 export function analyzePolicy(input) {
   const text = String(input ?? "");
   const ranges = rangesFor(text);
   const topicCounts = Object.create(null);
-  const points = ranges.map(([start, end], index) => {
+  const points = ranges.map(([start, end, passageNumber], index) => {
     const sourceText = text.slice(start, end);
     const topic = classify(sourceText);
     topicCounts[topic] = (topicCounts[topic] || 0) + 1;
     return {
-      id: `point-${String(index + 1).padStart(3, "0")}`,
+      id: `point-${String(passageNumber ?? index + 1).padStart(3, "0")}`,
       title: `${TOPICS[topic].label} detail ${topicCounts[topic]}`,
       text: sourceText,
       topic,

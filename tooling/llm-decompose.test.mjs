@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intelligentDecompose, validateClaims, validateNonClaimUnits } from './llm-decompose.mjs';
+import { callOpenAI, intelligentDecompose, validateClaims, validateNonClaimUnits } from './llm-decompose.mjs';
 import { decompose } from './decompose.mjs';
 
 const text='Data retention\n\nWe delete your account data within 30 days unless the law requires us to keep it longer.\n\nYou may request a copy of your account data.';
@@ -58,4 +58,37 @@ test('user overview caps cards per group while groups run concurrently', async()
   assert.ok(result.claims.length<=2*groups);
   assert.equal(result.status,'selective_overview');
   assert.ok(result.unclaimedUnitIds.length>0);
+});
+
+test('a malformed claim does not discard another valid claim in the same response', () => {
+  const base = decompose({text:'We delete account data after 30 days.'});
+  const valid = {unitId:base.units[0].id, claim:'Account data is deleted after 30 days.', sourceQuote:base.document.text, contextUnitId:'', contextQuote:'', qualifiers:[]};
+  const result = validateClaims(base, {claims:[null, valid]});
+  assert.equal(result.accepted.length, 1);
+  assert.equal(result.rejected.length, 1);
+});
+
+test('a model group cannot claim or dismiss units assigned to another group', async () => {
+  const source = Array.from({length:220}, (_, i) => `Section ${i+1}\n\nWe collect account detail ${i+1} only when you enable this feature in your account settings.\n\n`).join('');
+  const first = decompose({text:source}).units[0];
+  const result = await intelligentDecompose({text:source}, {propose:async () => ({
+    claims:[{unitId:first.id, claim:'This feature collects account details when enabled.', sourceQuote:first.text, contextUnitId:'', contextQuote:'', qualifiers:[]}],
+    nonClaimUnits:[]
+  })});
+  assert.equal(result.claims.length, 1);
+  assert.ok(result.rejected.some(item => item.reason === 'unit-outside-group'));
+});
+
+test('invalid worker counts fail explicitly instead of silently skipping analysis', async () => {
+  for (const concurrency of [0, -1, NaN, Infinity, 1.5, '2', 5]) {
+    await assert.rejects(intelligentDecompose({text}, {concurrency, propose:async () => ({claims:[], nonClaimUnits:[]})}), /concurrency/i);
+  }
+});
+
+test('model requests have a deadline and do not store policy text', async () => {
+  await callOpenAI({units:[]}, {apiKey:'test-key', fetchImpl:async (_url, options) => {
+    assert.ok(options.signal instanceof AbortSignal, 'A stalled model request must be abortable.');
+    assert.equal(JSON.parse(options.body).store, false);
+    return new Response(JSON.stringify({output_text:'{"claims":[],"nonClaimUnits":[]}'}));
+  }});
 });

@@ -1,1 +1,20 @@
-{"name":"bite-sized-privacy-policy","private":true,"type":"module","scripts":{"dev":"node scripts/serve.mjs","build":"node scripts/build.mjs","test":"node --test *.test.mjs tooling/*.test.mjs scripts/*.test.mjs","policy":"node tooling/cli.mjs","benchmark":"node tooling/benchmark.mjs","save-featured":"node scripts/save-featured.mjs","refresh-featured-overviews":"node scripts/refresh-featured-overviews.mjs"},"dependencies":{"pdfjs-dist":"^6.5.438"}}
+{
+  "name": "bite-sized-privacy-policy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test *.test.mjs tooling/*.test.mjs scripts/*.test.mjs",
+    "policy": "node tooling/cli.mjs",
+    "benchmark": "node tooling/benchmark.mjs",
+    "save-featured": "node scripts/save-featured.mjs",
+    "refresh-featured-overviews": "node scripts/refresh-featured-overviews.mjs"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^6.5.438"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

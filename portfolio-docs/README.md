@@ -9,7 +9,7 @@ Help people understand long policies through source-linked points, progressive r
 Capture: active  
 Audience: general portfolio; refine when known  
 Visuals: create when they explain the work  
-Last substantive capture: 2026-11-18 — progressive reading and claim cards
+Last substantive capture: 2026-11-18 — functional reliability cleanup
 
 ## Start here
 
@@ -29,7 +29,7 @@ This is a reconstruction from accessible project documents, Git history, saved r
 
 ## Using this folder
 
-Keep new work current at meaningful checkpoints. Add evidence before replacing useful states. The folder is a local working archive; no publication or Git commit was performed. Original source files remain authoritative. The asset register distinguishes original inputs, generated outputs, concept mockups, and new explanatory graphics. Reconcile attribution and the listed gaps when assembling a public case study.
+Keep new work current at meaningful checkpoints. Add evidence before replacing useful states. The folder is a versioned working archive; it does not imply public publication. Original source files remain authoritative. The asset register distinguishes original inputs, generated outputs, concept mockups, and new explanatory graphics. Reconcile attribution and the listed gaps when assembling a public case study.
 
 - [Working prototype milestone](journal/2026-11-12-working-prototype.md)
 
@@ -38,6 +38,7 @@ Keep new work current at meaningful checkpoints. Add evidence before replacing u
 - [Entry UX reset](journal/2026-11-17-entry-ux-reset.md)
 - [Homepage visual language exploration](journal/2026-11-17-visual-language-exploration.md)
 - [Reading modes and featured-policy cache](journal/2026-11-18-reading-modes-cache.md)
-- [Agent guidance checkpoint](journal/2026-11-18-agent-guidance.md)
+- [Agent guidance checkpoint](journal/2026-11-18-project-instructions.md)
 - [Reading-mode placement discussion](journal/2026-11-18-reading-mode-placement.md)
 - [Progressive reading and claim cards](journal/2026-11-18-card-review.md)
+- [Functional reliability cleanup](journal/2026-11-18-functional-cleanup.md)

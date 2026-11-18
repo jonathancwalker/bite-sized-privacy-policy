@@ -23,7 +23,7 @@ function outputText(body) {
 }
 export async function callOpenAI(payload, { apiKey, model = DEFAULT_MODEL, mode = 'lawyer', fetchImpl = fetch } = {}) {
   if (!apiKey) throw new Error('OPENAI_API_KEY is required for live LLM decomposition.');
-  const response = await fetchImpl('https://api.openai.com/v1/responses', { method:'POST', headers:{authorization:`Bearer ${apiKey}`,'content-type':'application/json'}, body:JSON.stringify({model,store:false,instructions:mode === 'user' ? USER_INSTRUCTIONS : INSTRUCTIONS,input:JSON.stringify(payload),text:{format:{type:'json_schema',name:'privacy_claims',strict:true,schema:CLAIM_SCHEMA}}}) });
+  const response = await fetchImpl('https://api.openai.com/v1/responses', { method:'POST',signal:AbortSignal.timeout(90_000), headers:{authorization:`Bearer ${apiKey}`,'content-type':'application/json'}, body:JSON.stringify({model,store:false,instructions:mode === 'user' ? USER_INSTRUCTIONS : INSTRUCTIONS,input:JSON.stringify(payload),text:{format:{type:'json_schema',name:'privacy_claims',strict:true,schema:CLAIM_SCHEMA}}}) });
   if (!response.ok) throw new Error(`Model request failed (HTTP ${response.status}).`);
   const body = await response.json();
   if (body.status === 'incomplete' || body.error) throw new Error('Model response was incomplete or errored.');
@@ -32,13 +32,14 @@ export async function callOpenAI(payload, { apiKey, model = DEFAULT_MODEL, mode 
   return JSON.parse(text);
 }
 
-export function validateClaims(base, proposed) {
+export function validateClaims(base, proposed, allowedUnitIds = new Set(base.units.map(unit => unit.id))) {
   const accepted = [], rejected = [];
   const byId = new Map(base.units.map(unit=>[unit.id,unit]));
+  if (!Array.isArray(proposed?.claims)) return {accepted, rejected:[{unitId:null, reason:'invalid-claims-list'}]};
   for (const item of proposed?.claims || []) {
-    const unit = byId.get(item.unitId);
-    const contextUnit = byId.get(item.contextUnitId);
-    const reason = !unit?'unknown-unit':typeof item.claim!=='string'||!item.claim.trim()?'empty-claim':typeof item.sourceQuote!=='string'||item.sourceQuote.length<12||!unit.text.includes(item.sourceQuote)?'quote-not-in-unit':typeof item.contextQuote!=='string'||typeof item.contextUnitId!=='string'||(item.contextQuote?!contextUnit||!unit.contextIds.includes(item.contextUnitId)||!contextUnit.text.includes(item.contextQuote):item.contextUnitId!=='')?'invalid-context-link':!Array.isArray(item.qualifiers)?'invalid-qualifiers':null;
+    const unit = byId.get(item?.unitId);
+    const contextUnit = byId.get(item?.contextUnitId);
+    const reason = !unit?'unknown-unit':!allowedUnitIds.has(unit.id)?'unit-outside-group':typeof item.claim!=='string'||!item.claim.trim()?'empty-claim':typeof item.sourceQuote!=='string'||item.sourceQuote.length<12||!unit.text.includes(item.sourceQuote)?'quote-not-in-unit':typeof item.contextQuote!=='string'||typeof item.contextUnitId!=='string'||(item.contextQuote?!contextUnit||!unit.contextIds.includes(item.contextUnitId)||!contextUnit.text.includes(item.contextQuote):item.contextUnitId!=='')?'invalid-context-link':!Array.isArray(item.qualifiers)||!item.qualifiers.every(value=>typeof value==='string')?'invalid-qualifiers':null;
     if (reason) { rejected.push({unitId:item?.unitId??null,reason});continue; }
     const quoteStart = unit.start + unit.text.indexOf(item.sourceQuote);
     const contextStart = item.contextQuote?contextUnit.start+contextUnit.text.indexOf(item.contextQuote):null;
@@ -49,13 +50,14 @@ export function validateClaims(base, proposed) {
   return {accepted,rejected};
 }
 
-export function validateNonClaimUnits(base, proposed, claims = []) {
+export function validateNonClaimUnits(base, proposed, claims = [], allowedUnitIds = new Set(base.units.map(unit => unit.id))) {
   const accepted = [], rejected = [];
   const byId = new Map(base.units.map(unit=>[unit.id,unit]));
-  const claimed = new Set(claims.map(claim=>claim.unitId));
+  const claimed = new Set(claims.map(claim=>claim?.unitId));
   const seen = new Set();
+  if (proposed?.nonClaimUnits != null && !Array.isArray(proposed.nonClaimUnits)) return {accepted, rejected:[{unitId:null, reason:'invalid-nonclaim-list'}]};
   for (const item of proposed?.nonClaimUnits || []) {
-    const reason = !byId.has(item?.unitId)?'unknown-unit':!NON_CLAIM_REASONS.has(item?.reason)?'invalid-nonclaim-reason':claimed.has(item.unitId)?'claim-nonclaim-overlap':seen.has(item.unitId)?'duplicate-nonclaim-unit':null;
+    const reason = !byId.has(item?.unitId)?'unknown-unit':!allowedUnitIds.has(item.unitId)?'unit-outside-group':!NON_CLAIM_REASONS.has(item?.reason)?'invalid-nonclaim-reason':claimed.has(item.unitId)?'claim-nonclaim-overlap':seen.has(item.unitId)?'duplicate-nonclaim-unit':null;
     if (reason) { rejected.push({unitId:item?.unitId??null,reason});continue; }
     accepted.push({unitId:item.unitId,reason:item.reason});
     seen.add(item.unitId);
@@ -65,6 +67,7 @@ export function validateNonClaimUnits(base, proposed, claims = []) {
 
 export async function intelligentDecompose(input, { model = DEFAULT_MODEL, mode = 'lawyer', concurrency = 4, apiKey = process.env.OPENAI_API_KEY, propose = null, fetchImpl = fetch } = {}) {
   normalizeReadingMode(mode);
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new TypeError('Concurrency must be an integer from 1 to 4.');
   const base = decompose(input);
   const groups = chunks(base.units, mode === 'user' ? 14000 : 9000);
   const infer = propose || ((payload)=>callOpenAI(payload,{apiKey,model,mode,fetchImpl}));
@@ -76,8 +79,9 @@ export async function intelligentDecompose(input, { model = DEFAULT_MODEL, mode 
     const payload = {documentTitle:base.document.title,units:group.map(unit=>({id:unit.id,sectionPath:unit.sectionPath,text:unit.text,previousId:unit.previousId||'',previous:base.units.find(x=>x.id===unit.previousId)?.text.slice(-500)||'',nextId:unit.nextId||'',next:base.units.find(x=>x.id===unit.nextId)?.text.slice(0,500)||''}))};
     try {
       const proposed = await infer(payload, {mode});
-      const checked = validateClaims(base, proposed);
-      const disposition = validateNonClaimUnits(base, proposed, proposed?.claims || []);
+      const allowedUnitIds = new Set(group.map(unit => unit.id));
+      const checked = validateClaims(base, proposed, allowedUnitIds);
+      const disposition = validateNonClaimUnits(base, proposed, Array.isArray(proposed?.claims) ? proposed.claims : [], allowedUnitIds);
       results[index] = {claims:mode === 'user' ? checked.accepted.slice(0,2) : checked.accepted,nonClaimUnits:disposition.accepted,rejected:[...checked.rejected,...disposition.rejected],failures:[]};
     } catch (error) { results[index] = {claims:[],nonClaimUnits:[],rejected:[],failures:[{unitIds:group.map(x=>x.id),message:error.message}]}; }
   }}

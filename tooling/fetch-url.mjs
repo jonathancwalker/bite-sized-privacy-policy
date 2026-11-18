@@ -1,4 +1,5 @@
 import { extractHtml } from './html-text.mjs';
+import { publicHttpsFetch } from './public-https.mjs';
 
 const MAX_BYTES = 3_000_000;
 function isPrivateHost(host) {
@@ -16,14 +17,17 @@ export function validatePolicyUrl(input) {
   return url;
 }
 
-/** Fetch public HTML/PDF policy pages with redirect and response limits. */
-export async function fetchPolicyUrl(input, { fetchImpl = fetch } = {}) {
+/** Fetch public HTML/text policy pages with DNS, redirect, time and size limits. */
+export async function fetchPolicyUrl(input, { fetchImpl, lookupImpl, requestImpl, timeoutMs = 15_000 } = {}) {
   let url = validatePolicyUrl(input);
+  const signal = AbortSignal.timeout(timeoutMs);
+  const fetchPage = fetchImpl || ((target, options) => publicHttpsFetch(target, {...options, lookupImpl, requestImpl}));
   let response;
   for (let hop = 0; hop < 4; hop++) {
-    response = await fetchImpl(url, { redirect: 'manual', headers: { accept: 'text/html, text/plain;q=0.8, application/pdf;q=0.5', 'user-agent': 'BiteSizedPrivacy/0.2 (+policy reading prototype)' } });
+    response = await fetchPage(url, { signal, redirect: 'manual', headers: { accept: 'text/html, text/plain;q=0.8', 'user-agent': 'BiteSizedPrivacy/0.2 (+policy reading prototype)' } });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location');
+      await response.body?.cancel();
       if (!location) throw new Error('Policy page redirected without a destination.');
       url = validatePolicyUrl(new URL(location, url).href);
       continue;
@@ -31,11 +35,11 @@ export async function fetchPolicyUrl(input, { fetchImpl = fetch } = {}) {
     break;
   }
   if ([301, 302, 303, 307, 308].includes(response.status)) throw new Error('Policy page redirected too many times.');
-  if (!response.ok) throw new Error(`Policy page returned HTTP ${response.status}.`);
+  if (!response.ok) { await response.body?.cancel(); throw new Error(`Policy page returned HTTP ${response.status}.`); }
   const type = response.headers.get('content-type')?.toLowerCase() || '';
-  if (!/text\/html|text\/plain/.test(type)) throw new Error(`This URL returned ${type || 'an unknown file type'}. Use file import for PDF or other formats.`);
+  if (!/^(text\/html|text\/plain)(?:;|$)/.test(type)) { await response.body?.cancel(); throw new Error(`This URL returned ${type || 'an unknown file type'}. Use file import for PDF or other formats.`); }
   const knownLength = Number(response.headers.get('content-length'));
-  if (knownLength > MAX_BYTES) throw new Error('Policy page exceeds the 3 MB download limit.');
+  if (knownLength > MAX_BYTES) { await response.body?.cancel(); throw new Error('Policy page exceeds the 3 MB download limit.'); }
   const reader = response.body?.getReader();
   if (!reader) throw new Error('The policy page had no readable body.');
   const chunks = []; let total = 0;
