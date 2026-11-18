@@ -92,3 +92,10 @@ Date: 2026-11-18. Status: implemented in isolated worktree; pending user evaluat
 The user explicitly preferred saving prepared results over a runtime cache so featured policies can open directly. Codex saved dated, versioned source and both mode analyses for Meta, TikTok US, and YouTube/Google as static files. Clicking a homepage tile opens the saved user overview without source fetching or model generation; switching to lawyer mode reads the same saved file. A deliberate `save-featured` command refreshes snapshots. New source versions do not update automatically, so the interface displays the fetch date and points readers to the original page.
 
 Attribution: saved-results direction from the user; snapshot format, refresh command, and direct route from Codex. Evidence: [saved files](../app/data/featured/), [interface](../app/app.js), [refresh script](../scripts/save-featured.mjs), [experiment](experiments.md#e07--reading-modes-and-featured-policy-cache).
+
+## D12 — Choose depth before input and review one claim per card
+Date: 2026-11-18. Status: implemented locally; pending user evaluation.
+
+The user proposed a progressive homepage path: choose a policy, reveal reading depth, then proceed. They also asked for a constrained card with a claim, progress, and Accept, Reject, Skip, or Reword; source wording should be available on demand. This updates D01's reaction labels in the card experience while retaining its distinction between a personal claim reaction and acceptance of a policy. Codex used a centered single-card layout, a source disclosure, and subtle priority, overview, and reworded treatments. Quick overview now targets a handful of high-level, source-linked themes for own-policy imports; detailed mode stays granular. Featured quick overviews were refreshed from their existing dated sources to match.
+
+Attribution: flow, card actions, and high-level overview goal from the user; implementation details and source disclosure from Codex. Evidence: [journal](journal/2026-11-18-card-review.md), [browser experiment](experiments.md#e08--progressive-card-review-and-shorter-overviews), [pipeline](../tooling/llm-decompose.mjs).

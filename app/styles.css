@@ -116,3 +116,43 @@ h1,h2,.serif{font-family:inherit;font-weight:650;letter-spacing:-.045em}
 .checkpoint{max-width:620px;margin:0 auto}.checkpoint .panel{background:transparent;border:0;box-shadow:none;padding:0}.check-emblem{background:#e0ebf0;color:#395b6d}.checkpoint h1{font-size:42px}.stat strong{font-family:inherit;font-weight:600;font-size:30px}.report-summary{background:#e8f0f3;border-color:#d9e4e8;border-radius:9px}.report-layout{grid-template-columns:minmax(0,1.4fr) minmax(240px,.8fr)}.report-side .panel{border-radius:9px;box-shadow:none}.accent{font-style:normal;color:#667f8e}.entry-preview h1{font-family:inherit;font-weight:600;font-size:40px;letter-spacing:-.04em}.entry-source pre{font-family:inherit;font-size:13px;background:white}.entry-document{border-color:#d9e0e3}.entry-preview .primary{background:#334f63;border-color:#334f63}
 @media(max-width:700px){.shell:not(.entry-shell){padding:0 20px}.shell:not(.entry-shell) .steps{gap:10px;overflow:auto;white-space:nowrap;font-size:10px}.shell:not(.entry-shell) main{padding-top:32px}.review-layout{display:block}.sidebar{border:0;border-bottom:1px solid #d9e0e3;padding:0 0 16px;margin-bottom:28px}.sidebar .doc-name{margin:10px 0}.sidebar .topic-nav{display:none}.review-main h1{font-size:29px}.reactions{grid-template-columns:1fr}.report-layout{display:block}.report-side{margin-top:28px}.topline{display:block}.topline .actions{margin-top:20px}.section-heading{margin-top:40px}}
 .report-item h3{font-family:inherit;font-size:16px;line-height:1.5;font-weight:600}.step.done b{background:#e4edf1;color:#456577;border-color:#d4e1e8}.report-side textarea,.branch textarea{background:#fff;border-color:#d3dfe5;color:#202a32}.count{background:#e4edf1;color:#456577}
+
+/* Focused claim cards */
+.shell:not(.entry-shell):has(.card-flow){max-width:860px}
+.shell:not(.entry-shell):has(.card-flow) main{padding-top:22px}
+.card-flow{max-width:680px;margin:0 auto;padding:18px 0 50px}
+.card-flow-top,.card-progress,.card-flow-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.card-flow-top{font-size:12px;color:#617480}.card-flow-top>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45%;font-weight:600}
+.card-progress{margin:43px 0 12px;font-size:12px;color:#657985;font-weight:600}
+.card-progress-track{height:4px;background:#dce6eb;border-radius:4px;overflow:hidden;margin-bottom:24px}.card-progress-track>span{display:block;height:100%;background:#526f81}
+.claim-card{min-height:460px;background:#fff;border:1px solid #d0dce2;border-radius:16px;padding:30px;display:flex;flex-direction:column;box-shadow:0 14px 32px #29485d08;transition:border-color .2s,box-shadow .2s}
+.claim-card.is-priority{border-color:#668699;box-shadow:inset 4px 0 #668699,0 14px 32px #29485d08}
+.claim-card.is-overview{background:linear-gradient(145deg,#fafdff 0%,#fff 42%)}
+.claim-card.is-reworded{border-color:#9d94af;box-shadow:inset 4px 0 #9d94af,0 14px 32px #29485d08}
+.claim-card-label{display:flex;justify-content:space-between;gap:12px;color:#677e8c;font-size:11px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}
+.ambient-label{color:#547182}.claim-card.is-reworded .ambient-label{color:#756a8a}
+.claim-card h1{font-family:inherit;font-size:clamp(25px,3.4vw,34px);font-weight:600;line-height:1.32;letter-spacing:-.035em;margin:55px 0 42px;flex:1;max-width:600px}
+.claim-card-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:18px;color:#718390;font-size:11px}.claim-card-meta .text-button{font-size:11px;white-space:nowrap}
+.claim-card-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;border-top:1px solid #e3e9ed;padding-top:18px}
+.card-action{min-height:48px;padding:10px;border:1px solid #cad8df;background:#fff;border-radius:8px;color:#344e5d;font-size:13px;font-weight:650}
+.card-action:hover{border-color:#56798e;background:#f2f7f9}.card-action.accept{background:#334f63;border-color:#334f63;color:#fff}.card-action.accept:hover{background:#243e50}.card-action.reject{border-color:#839ba8}.card-action.reword{font-weight:550}
+.card-error{color:#99534b;font-size:12px;margin:14px 0 0}.card-flow-bottom{margin-top:22px}
+@media(max-width:700px){.card-flow{padding-top:0}.card-progress{margin-top:28px}.claim-card{min-height:440px;padding:24px 20px}.claim-card h1{font-size:clamp(24px,6.5vw,31px);margin:42px 0 34px}.claim-card-actions{grid-template-columns:repeat(2,1fr)}.card-flow-top>span{max-width:35%}}
+@media(prefers-reduced-motion:reduce){.claim-card{transition:none}}
+
+/* Progressive reading-depth choice */
+.policy-logo.selected .policy-logo-mark{border-color:#526f81;box-shadow:0 0 0 2px #d7e4ea}
+.home-mode-choice{padding:20px 0 28px;animation:mode-reveal .22s ease both}
+.home-mode-choice h3{font-size:15px;letter-spacing:-.015em;margin:0 0 12px}
+.home-mode-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.home-mode-options button{border:1px solid #cbd9e0;background:#fff;border-radius:9px;padding:16px;text-align:left;min-height:82px}
+.home-mode-options button:hover{border-color:#617f90;background:#f6fafb}
+.home-mode-options strong,.home-mode-options small{display:block}
+.home-mode-options strong{font-size:14px}.home-mode-options small{font-size:11px;color:#687d89;line-height:1.45;margin-top:5px}
+.inline-import .home-mode-choice{padding:0 0 10px}
+.inline-import .choose-button{color:#fff}
+.inline-mode-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #d9e0e3;padding:0 0 16px;margin-bottom:20px;font-size:12px;font-weight:650;color:#526f81}
+.mode-summary{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding:14px 0;border-top:1px solid #d9e0e3;border-bottom:1px solid #d9e0e3;font-size:13px;font-weight:650}
+@keyframes mode-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){.home-mode-options{grid-template-columns:1fr}.home-mode-options button{min-height:68px}}
+@media(prefers-reduced-motion:reduce){.home-mode-choice{animation:none}}

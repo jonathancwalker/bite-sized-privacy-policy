@@ -101,3 +101,19 @@ test('missing key and invalid uploads fail with clear JSON errors', async () => 
     assert.equal((await huge.json()).code, 'POLICY_TOO_LONG');
   });
 });
+
+test('rewording validates grounded input and keeps the key server-side', async () => {
+  let received;
+  await withServer({apiKey:'test-key',reword:async (input,options)=>{received={input,options};return 'We keep your data for 30 days unless law requires longer.';}},async base=>{
+    const good=await post(base,'/api/reword',{claim:'We retain data for 30 days unless required by law.',sourceQuote:'We retain your account data for 30 days unless the law requires longer retention.'});
+    assert.equal(good.status,200);
+    assert.equal((await good.json()).reworded,'We keep your data for 30 days unless law requires longer.');
+    const bad=await post(base,'/api/reword',{claim:'We retain data.',sourceQuote:'short'});
+    assert.equal(bad.status,400);
+  });
+  assert.equal(received.options.apiKey,'test-key');
+  await withServer({apiKey:null},async base=>{
+    const response=await post(base,'/api/reword',{claim:'We retain data.',sourceQuote:'We retain your account data.'});
+    assert.equal(response.status,503);
+  });
+});

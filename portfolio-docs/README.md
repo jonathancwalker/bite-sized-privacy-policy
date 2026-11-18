@@ -9,7 +9,7 @@ Help people understand long policies through source-linked points, progressive r
 Capture: active  
 Audience: general portfolio; refine when known  
 Visuals: create when they explain the work  
-Last substantive capture: 2026-11-18 — reading modes and cache experiment
+Last substantive capture: 2026-11-18 — progressive reading and claim cards
 
 ## Start here
 
@@ -38,3 +38,6 @@ Keep new work current at meaningful checkpoints. Add evidence before replacing u
 - [Entry UX reset](journal/2026-11-17-entry-ux-reset.md)
 - [Homepage visual language exploration](journal/2026-11-17-visual-language-exploration.md)
 - [Reading modes and featured-policy cache](journal/2026-11-18-reading-modes-cache.md)
+- [Agent guidance checkpoint](journal/2026-11-18-agent-guidance.md)
+- [Reading-mode placement discussion](journal/2026-11-18-reading-mode-placement.md)
+- [Progressive reading and claim cards](journal/2026-11-18-card-review.md)
