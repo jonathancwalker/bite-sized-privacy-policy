@@ -21,8 +21,8 @@ The Node server is a local development server. Its API accepts requests addresse
 1. Choose a featured policy or expand **Review my own policy**.
 2. Choose **Quick overview** or **Detailed review** before proceeding.
 3. For an own policy, upload TXT/RTF/DOCX/text-PDF, paste text, or enter a public HTTPS URL; check the extracted text before analysis.
-4. Choose topics to see first, then **Accept**, **Reject**, **Skip**, or **Reword** each claim. Original wording stays available through **Check source**.
-5. Resume the review later or export a personal report. Reactions do not accept, amend, or negotiate a policy.
+4. Open the first card directly. Single-click **Accept**, **Reject**, or **Skip** to select; **Next** confirms and advances. Double-click a response as a shortcut. **Undo last response** reverses the latest confirmation. **Reword** asks for a rebuilt explanation; original wording stays available through **Check source**. Topic ordering is optional in Review settings.
+5. Resume the review later or open a report grouped into Needs attention, Left to review, and Accepted. Reactions do not accept, amend, or negotiate a policy.
 
 Quick overview selects a few themes and explicitly leaves some source material unsummarized. Detailed review produces more granular cards, including exact-source fallback passages when needed. Neither mode implies legal review. The current saved overviews have 8 Meta, 4 TikTok US, and 10 Google cards; detailed reviews have 174, 121, and 291 respectively.
 

@@ -156,3 +156,8 @@ h1,h2,.serif{font-family:inherit;font-weight:650;letter-spacing:-.045em}
 @keyframes mode-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:480px){.home-mode-options{grid-template-columns:1fr}.home-mode-options button{min-height:68px}}
 @media(prefers-reduced-motion:reduce){.home-mode-choice{animation:none}}
+
+/* Functional response selection and confirmation; existing visual palette. */
+.card-action[aria-pressed="true"]{outline:3px solid #668699;outline-offset:3px}
+.card-confirm{justify-content:space-between;margin:20px 0}
+.card-confirm .page-meta{font-size:12px}

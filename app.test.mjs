@@ -10,7 +10,7 @@ import { decompose } from './tooling/decompose.mjs';
 // Exercise the real client state/rendering code without pretending this is browser layout QA.
 async function client(saved = null) {
   const events = new Map();
-  const root = {innerHTML:'', addEventListener(){}, querySelector(){return null;}, querySelectorAll(){return [];}};
+  const root = {innerHTML:'', addEventListener(name,handler){events.set('root:'+name,handler);}, querySelector(){return null;}, querySelectorAll(){return [];}};
   const storage = new Map(saved == null ? [] : [['bite-sized-review-v1', JSON.stringify(saved)]]);
   const context = vm.createContext({
     ...engine, ...reviewState,
@@ -20,7 +20,7 @@ async function client(saved = null) {
   });
   const source = (await readFile(new URL('./app/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
   vm.runInContext(source, context);
-  return {root, context, events, run:source => vm.runInContext(source, context)};
+  return {root, context, events, click:(action,id,detail=1)=>events.get('root:click')({detail,target:{closest:()=>({dataset:{action,id}})}}), run:source => vm.runInContext(source, context)};
 }
 
 const text = 'We delete your account data after 30 days.';
@@ -113,4 +113,55 @@ test('removing a leading blank card does not move a saved reaction to another pa
   const restored = restoreReview(JSON.stringify(saved));
   assert.equal(restored.analysis.points[0].id, 'point-002');
   assert.equal(restored.responses['point-002'].note, 'Keep this note');
+});
+
+const twoCards = {version:1,title:'Policy',text:'We collect your email address.\n\nWe collect your phone number.',createdAt:'2026-11-18T12:00:00Z',responses:{}};
+test('selecting a response stays on the card until Next, and Undo restores it', async () => {
+  const app = await client(twoCards);
+  app.run("setScreen('review')");
+  app.click('react','comfortable');
+  assert.equal(app.run('cursor'), 0);
+  assert.equal(app.run('response(current().id).reaction'), undefined);
+  app.click('confirm');
+  assert.equal(app.run('cursor'), 1);
+  assert.equal(app.run('state.responses["point-001"].reaction'), 'comfortable');
+  app.click('undo');
+  assert.equal(app.run('cursor'), 0);
+  assert.equal(app.run('response(current().id).reaction'), undefined);
+});
+test('double-click confirms exactly one card and skipped cards remain unfinished', async () => {
+  const app = await client(twoCards);
+  app.run("setScreen('review')");
+  app.click('skip',undefined,1);
+  assert.equal(app.run('cursor'), 0);
+  app.click('skip',undefined,2);
+  assert.equal(app.run('cursor'), 1);
+  assert.equal(app.run('reviewed().length'), 0);
+});
+test('depth labels and report sections are concise', async () => {
+  const app = await client(twoCards);
+  const modes = app.run("modeChoice('featured')");
+  assert.match(modes, /User view/);
+  assert.doesNotMatch(modes, /a few high-level themes|granular claims/);
+  const report = app.run('reportView()');
+  assert.match(report, /Left to review/);
+  assert.doesNotMatch(report, /Back to topic map/);
+});
+
+test('a double-click on Next cannot advance over a second previously reviewed card', async () => {
+  const app = await client({...twoCards,responses:{'point-001':{reaction:'comfortable'},'point-002':{reaction:'comfortable'}}});
+  app.run("setScreen('review')");
+  app.click('confirm',undefined,1);
+  app.click('confirm',undefined,2);
+  assert.equal(app.run('screen'), 'review');
+  assert.equal(app.run('cursor'), 1);
+});
+
+test('a new prepared review opens directly on the first card', async () => {
+  const app = await client();
+  app.context.imported = {text,title:'Policy',source:{kind:'paste'}};
+  app.context.prepared = preparedAnalysis(raw,text);
+  app.run('pending=imported; replaceWithPrepared(prepared)');
+  assert.equal(app.run('screen'),'review');
+  assert.equal(app.run('cursor'),0);
 });
