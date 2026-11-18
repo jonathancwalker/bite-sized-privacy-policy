@@ -13,7 +13,8 @@ let ownOpen = false;
 let inputMode = 'upload', selectedFile = null, pending = null, busy = '', importError = '';
 let readingMode = 'user', intakePreferences = [];
 let rewordBusy = '', rewordError = '';
-let renderedCardId = null, rewordEntrance = null;
+let renderedCardId = null, rewordEntrance = null, previousReadingMode = null;
+let exportBusy = false, exportError = '';
 let flowToken = 0;
 let pendingReaction = null, lastDecision = null;
 const featuredPolicies = [
@@ -35,6 +36,7 @@ try {
 }
 const points = () => analysis?.points || [];
 const response = id => state.responses[id] || {};
+const platformName = () => ({meta:'Instagram','tiktok-us':'TikTok','youtube-google':'YouTube'}[state?.source?.catalogId] || state?.title || 'Privacy policy');
 const reviewed = () => points().filter(p=>['comfortable','clarify','concern'].includes(response(p.id).reaction));
 const groups = () => {
   const all = analysis.topics.slice();
@@ -59,7 +61,6 @@ function frame(content){
     <div class="shell ${entry?'entry-shell':''}">
       <header class="header">
         <button class="brand" data-action="home" aria-label="Plainer — all policies">plainer<span aria-hidden="true">.</span></button>
-        ${!entry&&state?`<span class="header-document">${escape(state.title)}</span>`:''}
         <div class="header-right">${state?reviewMenu():''}</div>
       </header>
       <main id="main">
@@ -71,9 +72,9 @@ function frame(content){
 }
 
 function reviewMenu(){
-  return `<details class="review-menu"><summary>Review menu <span aria-hidden="true">⌄</span></summary><div class="menu-panel">
+  return `<details class="review-menu"><summary>Review menu <span aria-hidden="true">⋯</span></summary><div class="menu-panel">
     ${screen==='review'&&lastDecision?.review===state?'<button data-action="undo">Undo last response</button>':''}
-    <button data-action="overview">Focus areas & settings</button><button data-action="change-mode">Reading depth</button><button data-action="full-source">Full policy</button><button class="danger-action" data-action="reset">Clear review</button>
+    <button data-action="priorities">Priority areas</button><button data-action="change-mode">Reading depth</button><button data-action="full-source">Full policy</button><button data-action="download-full">Download full source record</button><button class="danger-action" data-action="reset">Clear review</button>
   </div></details>`;
 }
 function statusOf(p){return reactions[response(p.id).reaction]?response(p.id).reaction:'unseen';}
@@ -81,28 +82,31 @@ function reactionCounts(){return Object.fromEntries(['comfortable','concern','cl
 function reactionLegend(totals){
   return `<ul class="reaction-legend" aria-label="Your reactions">${Object.entries(totals).map(([status,count])=>`<li data-state="${status}"><span class="status-swatch" aria-hidden="true">${reactionMarks[status]}</span><span>${reactions[status]||'Not reviewed'}</span><strong>${count}</strong></li>`).join('')}</ul>`;
 }
-function reactionStack(totals){
-  const total=points().length;
-  return `<div class="progress-stack" role="img" aria-label="${Object.entries(totals).map(([status,n])=>n+' '+(reactions[status]||'not reviewed').toLowerCase()).join(', ')}">${Object.entries(totals).filter(([,n])=>n).map(([status,n])=>`<span data-state="${status}" style="flex-grow:${n}" aria-hidden="true"></span>`).join('')}${total?'':'<span data-state="unseen"></span>'}</div>`;
+function reactionTrail(){
+  const byId=new Map(points().map(p=>[p.id,p]));
+  const recorded=[...new Set(state.responseOrder||[])].map(id=>byId.get(id)).filter(p=>p&&response(p.id).reaction);
+  const shown=new Set(recorded.map(p=>p.id));
+  const list=[...recorded,...ordered().filter(p=>!shown.has(p.id))];
+  return `<div class="reaction-trail" style="--trail-columns:${Math.min(32,list.length)||1}" role="img" aria-label="Your responses: ${Object.entries(reactionCounts()).map(([status,n])=>n+' '+(reactions[status]||'not reviewed').toLowerCase()).join(', ')}">${list.map(p=>`<span data-trail-id="${p.id}" data-state="${statusOf(p)}" title="${escape((reactions[response(p.id).reaction]||'Not reviewed')+': '+(p.model?p.title:p.text.trim()))}"></span>`).join('')}</div>`;
 }
 function readerFrame(content){
   const totals=reactionCounts();
   return `<div class="reader-layout">
     <aside class="review-sidebar" aria-label="Review progress"><div class="progress-card">
-      <div class="progress-heading"><h2>Your review</h2><span class="depth-label">${reviewDepth(state)==='user'?'Quick overview':'Detailed review'}</span></div>
+      <div class="progress-heading"><h2>${escape(platformName())} review</h2></div>
       <p class="progress-label"><strong>${reviewed().length} of ${points().length}</strong> reviewed</p>
-      ${reactionStack(totals)}${reactionLegend(totals)}
+      ${reactionTrail()}${reactionLegend(totals)}
       <button class="secondary report-return" data-action="report">Back to report</button>
-    </div></aside>
+    </div><button class="help-button" data-action="help"><span aria-hidden="true">?</span>How to use</button></aside>
     <div class="reader-content">${content}</div>
   </div>`;
 }
 function claimMap(){
   let index=0;
-  return `<section class="claim-map-panel" aria-label="Reactions by topic"><div class="map-heading"><h2>Reactions by topic</h2><p>One square per claim · select to revisit</p></div>
+  return `<section class="claim-map-panel" aria-label="Reactions by topic"><div class="map-heading"><h2>Reactions by topic</h2></div>
     <div class="claim-map" role="group" aria-label="Claims grouped by topic">${groups().map(topic=>{
       const list=ordered().filter(p=>p.topic===topic);
-      return `<section class="map-category"><div class="map-category-heading"><h3>${escape(TOPICS[topic].label)}</h3><small>${list.length} ${list.length===1?'claim':'claims'}</small></div><div class="claim-tiles">${list.map(p=>{
+      return `<section class="map-category"><div class="map-category-heading"><h3>${escape(TOPICS[topic].label)}</h3><span class="topic-total" aria-label="${list.length} claims">${list.length}</span></div><div class="claim-tiles">${list.map(p=>{
         const status=statusOf(p), label=reactions[status]||'Not reviewed', text=response(p.id).rewording||(p.model?p.title:p.text.trim());
         return `<button class="claim-tile" data-action="point" data-id="${p.id}" data-map-id="${p.id}" data-state="${status}" aria-label="Claim ${++index}: ${label}. ${escape(text)}" title="${escape(label+': '+text)}"><span aria-hidden="true">${reactionMarks[status]}</span></button>`;
       }).join('')}</div></section>`;
@@ -115,20 +119,35 @@ const policyMarks = {
   'youtube-google': `<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="12" width="38" height="25" rx="7" fill="#e52d27"/><path d="M21 18l11 6.5L21 31z" fill="white"/></svg>`
 };
 function modeChoice(action='reading-depth',mode=readingMode){
-  return `<div class="depth-toggle" role="group" aria-label="Reading depth">${[['user','Quick overview'],['lawyer','Detailed review']].map(([value,label])=>`<button type="button" data-action="${action}" data-mode="${value}" aria-pressed="${mode===value}" ${busy?'disabled':''}>${label}</button>`).join('')}</div>`;
+  return `<div class="depth-choice"><div class="depth-toggle" role="group" aria-label="Reading depth" data-mode="${mode}" ${previousReadingMode?`data-from="${previousReadingMode}"`:''}>${[['user','Quick overview'],['lawyer','Lawyer mode']].map(([value,label])=>`<button type="button" data-action="${action}" data-mode="${value}" aria-pressed="${mode===value}" ${busy?'disabled':''}>${label}</button>`).join('')}</div><p class="mode-context ${previousReadingMode?'mode-context-enter':''}" aria-live="polite">${mode==='user'?'The big picture in a handful of cards.':'More detail, one claim at a time. No law degree needed.'}</p></div>`;
 }
 function intakeFocus(){
-  return `<details class="focus-choices" id="intake-focus"><summary>Focus areas <span>${intakePreferences.length?intakePreferences.length+' selected':'Optional'}</span></summary><p>Highlight these topics and show them first.</p><div class="pref-list">${Object.entries(TOPICS).filter(([id])=>id!=='other').map(([id,topic])=>`<button class="pref" data-action="intake-preference" data-id="${id}" aria-pressed="${intakePreferences.includes(id)}" ${busy?'disabled':''}>${escape(topic.label)}</button>`).join('')}</div></details>`;
+  return `<div class="priority-entry"><button class="secondary priority-button" data-action="priorities" ${busy?'disabled':''}><span aria-hidden="true">+</span>Priority areas${intakePreferences.length?`<span class="priority-count">${intakePreferences.length}</span>`:''}</button>${intakePreferences.length?`<p class="priority-selection">${intakePreferences.map(id=>escape(TOPICS[id].label)).join(' · ')}</p>`:''}</div>`;
+}
+function openPriorities(){
+  const intake=['paste','import','preview'].includes(screen), review=state;
+  let selected=[...(intake?intakePreferences:state.preferences)];
+  const topics=Object.keys(TOPICS).filter(id=>id!=='other'||(!intake&&analysis.topics.includes(id)));
+  const wrap=openModal(`<div class="modal-top"><h2 id="modal-title">Priority areas</h2><button class="secondary" data-close>Cancel</button></div><p class="priority-intro">Choose the topics you care about most. We'll bring them forward.</p><div class="priority-options">${topics.map(id=>`<button class="pref" data-priority="${id}" aria-pressed="${selected.includes(id)}">${escape(TOPICS[id].label)}</button>`).join('')}</div><button class="primary" id="apply-priorities">Done</button>`);
+  for(const button of wrap.querySelectorAll('[data-priority]'))button.onclick=()=>{
+    const id=button.dataset.priority;
+    selected=selected.includes(id)?selected.filter(value=>value!==id):[...selected,id];
+    button.setAttribute('aria-pressed',String(selected.includes(id)));
+  };
+  wrap.querySelector('#apply-priorities').onclick=()=>{
+    if(intake)intakePreferences=selected;
+    else if(state===review){const id=current()?.id;state.preferences=selected;cursor=Math.max(0,sequence().findIndex(p=>p.id===id));save();}
+    closeModal();render();root.querySelector(intake?'[data-action="priorities"]':'.review-menu > summary')?.focus({preventScroll:true});
+  };
 }
 function pasteView(){
-  return `<section class="entry-home">
+  return `<div class="home-layout ${state?'has-resume':''}"><section class="entry-home">
     <h1>Privacy policies,<br><em>plainer.</em></h1>
-    ${state?`<div class="entry-resume"><span><strong>Your current review</strong><small>${escape(state.title)} · ${reviewed().length} of ${points().length} reviewed</small></span><button data-action="resume">Resume <span aria-hidden="true">↗</span></button></div>`:''}
     <div class="entry-setup"><div class="entry-section-title"><h2>Review a policy</h2>${modeChoice()}</div>${intakeFocus()}</div>
     <div class="policy-logos">${featuredPolicies.map(item=>`<button class="policy-logo" data-action="featured" data-id="${item.id}" ${busy?'disabled':''} aria-label="Open ${escape(item.name)} privacy policy"><span class="policy-logo-mark ${item.id}">${policyMarks[item.id]}</span><span>${escape(item.id==='meta'?'Instagram':item.id==='youtube-google'?'YouTube':item.name)}</span></button>`).join('')}</div>
     ${busy&&!ownOpen?`<p class="entry-status" role="status">${escape(busy)}</p>`:''}${importError&&!ownOpen?`<p class="entry-error" role="alert">${escape(importError)}</p>`:''}
-    <div class="own-disclosure ${ownOpen?'open':''}"><button class="own-toggle" data-action="own" aria-expanded="${ownOpen}" aria-controls="own-panel">Review my own policy <span aria-hidden="true">⌄</span></button><div id="own-panel" class="own-panel" ${ownOpen?'':'inert'}><div>${importView(true)}</div></div></div>
-  </section>`;
+    <div class="own-disclosure ${ownOpen?'open':''}"><button class="own-toggle" data-action="own" aria-expanded="${ownOpen}" aria-controls="own-panel">Review my own policy <span aria-hidden="true">${ownOpen?'−':'+'}</span></button><div id="own-panel" class="own-panel" ${ownOpen?'':'inert'}><div>${importView(true)}</div></div></div>
+  </section>${state?`<aside class="resume-sidebar" aria-label="Saved review"><h2>${escape(platformName())} review</h2><p><strong>${reviewed().length} / ${points().length}</strong> reviewed</p>${reactionTrail()}<button class="secondary" data-action="resume">${state.screen==='report'?'Open report':'Continue review'} <span aria-hidden="true">↗</span></button></aside>`:''}</div>`;
 }
 function importView(inline=false){
   const tabs=[['upload','Upload'],['paste','Paste'],['url','URL']];
@@ -153,7 +172,7 @@ function previewView(){
     ${importError?`<p class="entry-error" role="alert">${escape(importError)}</p><button class="secondary" data-action="source-fallback">Continue with exact passages</button>`:''}
   </div></section>`;
 }
-function overviewView(){return `<section class="simple-page settings-panel"><button class="secondary" data-action="start">← Back to review</button><h1>Focus areas</h1><p class="page-meta">Highlight these topics and show them first. Every claim stays in your review.</p><div class="pref-list">${analysis.topics.map(t=>`<button class="pref" data-action="preference" data-id="${t}" aria-pressed="${state.preferences.includes(t)}">${TOPICS[t].label}</button>`).join('')}</div><div class="actions"><button class="secondary" data-action="change-mode">Reading depth</button><button class="secondary" data-action="full-source">Full policy</button></div></section>`;}
+function overviewView(){return `<section class="simple-page settings-panel"><button class="secondary" data-action="start">← Back to review</button><h1>Priority areas</h1><p>Highlight these topics and show them first. Every claim stays in your review.</p><div class="pref-list">${analysis.topics.map(t=>`<button class="pref" data-action="preference" data-id="${t}" aria-pressed="${state.preferences.includes(t)}">${TOPICS[t].label}</button>`).join('')}</div><div class="actions"><button class="secondary" data-action="change-mode">Reading depth</button><button class="secondary" data-action="full-source">Full policy</button></div></section>`;}
 function depthView(){
   return `<section class="simple-page settings-panel"><button class="secondary" data-action="resume">← Back</button><h1>Reading depth</h1><p class="page-meta">Progress is saved separately for each depth.</p>${modeChoice('switch-depth',reviewDepth(state))}${busy?`<p role="status">${escape(busy)}</p>`:''}${importError?`<p role="alert" class="entry-error">${escape(importError)}</p>`:''}</section>`;
 }
@@ -197,22 +216,20 @@ function reviewView(){
   const justReworded=rewordEntrance===p.id;
   return readerFrame(`<section class="review-workspace" aria-label="Claim review">
     <article class="claim-card ${priority?'is-priority':''} ${priority&&entering?'focus-enter':''} ${r.rewording?'is-reworded':''}" aria-busy="${rewordBusy===p.id}">
-      <div class="claim-card-label"><span>${escape(TOPICS[p.topic].label)}${priority?'<span class="focus-badge">Your focus</span>':''}</span><span>${state.queue?queueLabels[state.queue.kind]:'Claim'} ${cursor+1} of ${sequence().length}</span></div>
+      <div class="claim-card-label"><span>${escape(TOPICS[p.topic].label)}${priority?'<span class="focus-badge">Your priority</span>':''}</span><span class="sr-only">${state.queue?queueLabels[state.queue.kind]:'Claim'} ${cursor+1} of ${sequence().length}</span></div>
       <div class="claim-reading" role="region" aria-label="Claim wording" tabindex="0">
         <h1 tabindex="-1">${escape(display)}</h1>
         ${r.rewording?`<aside class="reword-note ${justReworded?'reword-enter':''}" role="status"><strong>Reworded for clarity</strong><p>AI wording may change or miss meaning. Compare it with the source.</p></aside>`:''}
         ${rewordError?`<p class="card-error" role="alert">${escape(rewordError)}</p>`:''}
       </div>
       <div class="claim-tools">
-        <span class="claim-kind">${!p.model?'Exact source passage':r.rewording?'AI rewording':analysis.readingMode==='user'?'AI overview':'AI claim'}${p.model?' · unverified':''}</span>
         <div class="claim-tool-buttons"><button class="feature-action" data-action="source" data-id="${p.id}"><span aria-hidden="true">≡</span>Check source</button><button class="feature-action reword-action" data-action="reword" ${rewordBusy===p.id||!p.model?'disabled':''}><span aria-hidden="true">↻</span>${rewordBusy===p.id?'Rewording…':'Reword claim'}</button></div>
       </div>
     </article>
     <div class="response-dock">
-      <div class="response-heading"><h2>Your response</h2><span id="selection-status" class="selection-status" aria-live="polite">${selected?reactions[selected]+' selected':'Choose one'}</span></div>
+      <div class="response-heading"><h2>Your response</h2><span id="selection-status" class="sr-only" aria-live="polite">${selected?reactions[selected]+' selected':''}</span></div>
       <div class="claim-card-actions" role="group" aria-label="Your response">${[['comfortable','Comfortable'],['concern','Concerned'],['clarify','Unsure']].map(([id,label])=>`<button class="card-action" data-state="${id}" data-action="react" data-id="${id}" aria-pressed="${selected===id}"><span class="reaction-mark" aria-hidden="true">${reactionMarks[id]}</span>${label}</button>`).join('')}</div>
       <div class="decision-navigation"><button class="secondary" data-action="previous" ${cursor===0?'disabled':''} aria-label="Previous claim">← Back</button><button class="skip-action" data-action="skip" data-state="skipped" aria-pressed="${selected==='skipped'}">Skip for now</button><button class="primary" data-action="confirm" ${selected?'':'disabled'}>${cursor===sequence().length-1?(state.queue?'Finish round':'View report'):'Next →'}</button></div>
-      ${analysis.readingMode==='user'?'<p class="coverage-note">Overview covers selected themes, not the full policy.</p>':''}
     </div>
   </section>`);
 }
@@ -223,18 +240,24 @@ function reportItem(p){
 }
 function reportView(){
   const c=counts(points()), totals=reactionCounts();
-  const sections=[['Needs attention',p=>['concern','clarify'].includes(response(p.id).reaction)],['Left to review',p=>!['comfortable','clarify','concern'].includes(response(p.id).reaction)],['Comfortable',p=>response(p.id).reaction==='comfortable']];
+  const attention=points().filter(p=>['concern','clarify'].includes(response(p.id).reaction));
   return `<section class="report-page">
-    <header class="report-overview"><div class="report-title-row"><div><p class="page-label">${escape(state.title)} · ${reviewDepth(state)==='user'?'Quick overview':'Detailed review'}</p><h1>Your report</h1><p class="report-tally"><strong>${reviewed().length} of ${points().length}</strong> reviewed</p></div><div class="actions report-actions">
+    <header class="report-overview"><div class="report-title-row"><div><h1>${escape(platformName())} report</h1><p class="report-tally"><strong>${reviewed().length} of ${points().length}</strong> reviewed</p></div><div class="actions report-actions">
       ${c.unreviewed?'<button class="primary" data-action="review-unfinished">Continue review</button>':''}
       ${c.clarify?`<button class="${c.unreviewed?'secondary':'primary'}" data-action="review-unsure">Revisit cards</button>`:''}
-      ${c.concern||totals.skipped?`<details class="followup-menu"><summary>More follow-ups ⌄</summary><div class="menu-panel">${c.concern?'<button data-action="review-attention">Review my concerns</button>':''}${totals.skipped?'<button data-action="review-skipped">Finish skipped cards</button>':''}</div></details>`:''}
-    </div></div>${reactionStack(totals)}${reactionLegend(totals)}${analysis.readingMode==='user'?'<p class="coverage-note">Quick overview covers selected themes only.</p>':''}</header>
+      ${c.concern||totals.skipped?`<details class="followup-menu"><summary>More follow-ups <span aria-hidden="true">+</span></summary><div class="menu-panel">${c.concern?'<button data-action="review-attention">Review my concerns</button>':''}${totals.skipped?'<button data-action="review-skipped">Finish skipped cards</button>':''}</div></details>`:''}
+    </div></div>${reactionTrail()}${reactionLegend(totals)}${state.preferences.length?`<div class="report-priorities"><h2>Your priorities</h2><p>${state.preferences.map(id=>escape(TOPICS[id].label)).join(' · ')}</p></div>`:''}</header>
     ${claimMap()}
-    <div class="report-details-panel"><h2>Claim details</h2>${sections.map(([label,match],i)=>{const list=points().filter(match);return `<section class="report-section"><details class="details" ${i===0&&list.length?'open':''}><summary>${label} · ${list.length}</summary>${list.length?list.map(reportItem).join(''):'<p>None here.</p>'}</details></section>`;}).join('')}</div>
+    ${attention.length?`<section class="attention-panel"><h2>Needs attention <span class="topic-total">${attention.length}</span></h2>${attention.map(reportItem).join('')}</section>`:''}
     ${state.reflection?`<section class="saved-note"><h2>Your saved note</h2><p>${escape(state.reflection)}</p></section>`:''}
-    <div class="report-utilities"><div class="actions"><button class="secondary" data-action="download">Download report</button><button class="secondary" data-action="print">Print</button></div><details class="details"><summary>Source and limits</summary><p>${state.source?.fetchedAt?`Source fetched ${escape(new Date(state.source.fetchedAt).toLocaleDateString())}. `:''}These colors record your reactions, not a risk score or acceptance of the policy. AI wording is unverified.${analysis.readingMode==='user'?` ${analysis.unclaimedUnitIds.length} source units are outside this overview.`:''} The download includes the full original policy.</p></details></div>
+    <div class="report-utilities"><div class="actions"><button class="primary" data-action="download" ${exportBusy?'disabled':''}>${exportBusy?'Preparing PDF…':'Download PDF'}</button><button class="secondary" data-action="download-text">Save as text</button><button class="secondary" data-action="report-info"><span aria-hidden="true">ⓘ</span>About this report</button></div>${exportError?`<p class="entry-error" role="alert">${escape(exportError)}</p>`:''}</div>
   </section>`;
+}
+function helpReview(){
+  openModal(`<div class="modal-top"><h2 id="modal-title">How to use Plainer</h2><button class="secondary" data-close>Close</button></div><ol class="help-steps"><li><strong>Choose how you feel</strong><p>Select Comfortable, Concerned, or Unsure, then press Next. Skip leaves a card for later.</p></li><li><strong>Double-click to move ahead</strong><p>Double-click a response to select it and advance in one move. You can go Back or undo your latest response in Review menu.</p></li><li><strong>Check source</strong><p>Open the exact passage behind a claim, highlighted in the original policy.</p></li><li><strong>Reword claim</strong><p>Try a different explanation. AI wording can miss or change meaning; compare it with the source.</p></li></ol><p class="help-limit">Quick overview covers selected themes. Lawyer mode goes into more detail; neither is legal advice. Your responses record how you feel and do not accept the policy.</p>`);
+}
+function reportInfo(){
+  openModal(`<div class="modal-top"><h2 id="modal-title">About this report</h2><button class="secondary" data-close>Close</button></div><div class="help-copy"><p>${analysis.readingMode==='user'?`Quick overview covers selected themes. ${analysis.unclaimedUnitIds.length} source units are outside this overview.`:'Lawyer mode covers individual claims in more detail.'} AI wording is unverified; compare it with the original policy.</p><p>Colors record your personal reactions, not a risk score or acceptance of the policy. Each square opens its claim.</p><p>The download includes your priorities, response totals, and claims that are concerned, unsure, skipped, or not reviewed. Comfortable claims are counted without repeating their wording.</p>${state.source?.fetchedAt?`<p>Source fetched ${escape(new Date(state.source.fetchedAt).toLocaleDateString())}.</p>`:''}<p>You can download the full source record from Review menu.</p></div>`);
 }
 async function apiPost(route, payload){
   const response=await fetch(route,{signal:AbortSignal.timeout(300_000),method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
@@ -269,7 +292,7 @@ async function importPolicy(input){
 }
 function replaceWithPrepared(nextAnalysis,confirmed=false){
   if(state&&!confirmed){openModal(`<div class="modal-top"><h2 id="modal-title">Replace your current review?</h2><button class="secondary" data-close>Keep it</button></div><p class="help-copy">The current policy and reactions will be replaced in this browser. Download its report first if you want a copy.</p><button class="primary" id="confirm-replace">Start new review</button>`);document.querySelector('#confirm-replace').onclick=()=>{closeModal();replaceWithPrepared(nextAnalysis,true);};return;}
-  state={version:2,text:pending.text,title:pending.title,source:pending.source,warnings:pending.warnings||[],createdAt:new Date().toISOString(),preferences:[...intakePreferences],responses:{},reflection:'',analysis:nextAnalysis};
+  state={version:2,text:pending.text,title:pending.title,source:pending.source,warnings:pending.warnings||[],createdAt:new Date().toISOString(),preferences:[...intakePreferences],responses:{},responseOrder:[],reflection:'',analysis:nextAnalysis};
   analysis=nextAnalysis;cursor=0;pending=null;importError='';recoveryError='';lastDecision=null;setScreen('review');
 }
 async function buildReview(){
@@ -300,7 +323,7 @@ function selectFile(file){
   render();root.querySelector(selectedFile?'[data-action="import-file"]':'[data-action="choose-file"]')?.focus();
 }
 function focusEntry(){window.scrollTo(0,0);const heading=root.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}}
-function render(){if(screen!=='review')renderedCardId=null;root.innerHTML=frame(screen==='paste'?pasteView():screen==='import'?importView():screen==='preview'?previewView():screen==='depth'?depthView():screen==='overview'?overviewView():screen==='review'?reviewView():screen==='checkpoint'?checkpointView():reportView());rewordEntrance=null;}
+function render(){if(screen!=='review')renderedCardId=null;root.innerHTML=frame(screen==='paste'?pasteView():screen==='import'?importView():screen==='preview'?previewView():screen==='depth'?depthView():screen==='overview'?overviewView():screen==='review'?reviewView():screen==='checkpoint'?checkpointView():reportView());rewordEntrance=null;previousReadingMode=null;}
 function next(){if(cursor>=sequence().length-1)setScreen('report');else{cursor++;setScreen('review');}}
 function selectReaction(reaction){
   pendingReaction=reaction;
@@ -310,8 +333,9 @@ function selectReaction(reaction){
 }
 function confirmReaction(){
   const p=current();const reaction=pendingReaction||response(p.id).reaction;if(!reaction)return;
-  lastDecision={review:state,id:p.id,cursor,queue:state.queue,previousReaction:response(p.id).reaction,previousDealbreaker:response(p.id).dealbreaker};
+  lastDecision={review:state,id:p.id,cursor,queue:state.queue,previousReaction:response(p.id).reaction,previousDealbreaker:response(p.id).dealbreaker,responseOrder:[...(state.responseOrder||[])]};
   state.responses[p.id]={...response(p.id),reaction,dealbreaker:reaction==='concern'&&response(p.id).dealbreaker===true};
+  state.responseOrder=[...new Set([...(state.responseOrder||[]),p.id])];
   rewordError='';next();
 }
 function undoDecision(){
@@ -320,14 +344,62 @@ function undoDecision(){
   const restored={...response(id)};
   if(previousReaction)restored.reaction=previousReaction;else delete restored.reaction;
   restored.dealbreaker=previousDealbreaker===true;
-  state.responses[id]=restored;state.queue=queue||null;cursor=sequence().findIndex(p=>p.id===id);lastDecision=null;setScreen('review');
+  state.responses[id]=restored;state.responseOrder=lastDecision.responseOrder;state.queue=queue||null;cursor=sequence().findIndex(p=>p.id===id);lastDecision=null;setScreen('review');
 }
 function goPoint(id){state.queue=null;cursor=ordered().findIndex(p=>p.id===id);if(cursor<0)cursor=0;setScreen('review');}
-function openModal(html){modalReturn=document.activeElement;const wrap=document.createElement('div');wrap.className='modal-backdrop';wrap.innerHTML=`<section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">${html}</section>`;document.body.append(wrap);root.inert=true;document.body.style.overflow='hidden';wrap.querySelector('button')?.focus();wrap.addEventListener('click',e=>{if(e.target===wrap||e.target.closest('[data-close]'))closeModal();});wrap.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeModal();}if(e.key==='Tab'){const els=[...wrap.querySelectorAll('button,a,input,textarea,[tabindex="0"]')];const first=els[0],last=els.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});}
+function openModal(html){modalReturn=document.activeElement;const wrap=document.createElement('div');wrap.className='modal-backdrop';wrap.innerHTML=`<section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">${html}</section>`;document.body.append(wrap);root.inert=true;document.body.style.overflow='hidden';wrap.querySelector('button')?.focus();wrap.addEventListener('click',e=>{if(e.target===wrap||e.target.closest('[data-close]'))closeModal();});wrap.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeModal();}if(e.key==='Tab'){const els=[...wrap.querySelectorAll('button,a,input,textarea,[tabindex="0"]')];const first=els[0],last=els.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});return wrap;}
 function closeModal(){document.querySelector('.modal-backdrop')?.remove();root.inert=false;document.body.style.overflow='';modalReturn?.focus();}
-function showSource(id){const p=points().find(x=>x.id===id);openModal(`<div class="modal-top"><div><p class="eyebrow">Original document</p><h2 id="modal-title">${escape(state.title)}</h2></div><button class="secondary" data-close>Close</button></div><p class="muted" style="font-size:12px">The highlighted passage is this claim’s exact position in the extracted policy text.</p><div class="source-full">${escape(state.text.slice(0,p.start))}<mark id="source-highlight">${escape(state.text.slice(p.start,p.end))}</mark>${escape(state.text.slice(p.end))}</div>`);document.querySelector('#source-highlight').scrollIntoView({block:'center'});}
+function showSource(id){const p=points().find(x=>x.id===id);openModal(`<div class="modal-top"><div><p class="eyebrow">Original document</p><h2 id="modal-title">${escape(state.title)}</h2></div><button class="secondary" data-close>Close</button></div><p class="muted" style="font-size:12px">The highlighted passage is the exact source. AI explanations can miss or change meaning; this wording is the reference.</p><div class="source-full">${escape(state.text.slice(0,p.start))}<mark id="source-highlight">${escape(state.text.slice(p.start,p.end))}</mark>${escape(state.text.slice(p.end))}</div>`);document.querySelector('#source-highlight').scrollIntoView({block:'center'});}
 function showFullSource(){openModal(`<div class="modal-top"><div><p class="eyebrow">Original document</p><h2 id="modal-title">${escape(state.title)}</h2></div><button class="secondary" data-close>Close</button></div><div class="source-full">${escape(state.text)}</div>`);}
+function reportData(){
+  const totals=reactionCounts(), statusOrder=['concern','clarify','skipped','unseen'];
+  return {
+    title:platformName()+' report', policyTitle:state.title, generatedAt:new Date().toISOString(),
+    priorities:state.preferences.map(id=>TOPICS[id].label), totals,
+    reviewed:reviewed().length, total:points().length,
+    depth:reviewDepth(state)==='user'?'Quick overview':'Lawyer mode',
+    coverage:analysis.readingMode==='user'?`Selected themes only; ${analysis.unclaimedUnitIds.length} source units are outside this overview.`:'Individual claims from the prepared policy review.',
+    source:{url:state.source?.finalUrl||'',kind:state.source?.kind||'paste',fetchedAt:state.source?.fetchedAt||'',scope:state.source?.scope||''},
+    items:statusOrder.flatMap(status=>ordered().filter(p=>statusOf(p)===status).map(p=>{
+      const r=response(p.id);
+      return {id:p.id,topic:TOPICS[p.topic].label,status,label:reactions[status]||'Not reviewed',
+        wording:r.rewording||(p.model?p.title:p.text.trim()),sourceQuote:p.text.trim(),contextQuote:p.contextQuote||'',
+        start:p.start,end:p.end,note:r.note||'',question:r.question||'',dealbreaker:r.dealbreaker===true};
+    }))
+  };
+}
 function reportText(){
+  const data=reportData();
+  return [data.title.toUpperCase(),`Exported: ${data.generatedAt}`,
+    ...(data.priorities.length?[`Priority areas: ${data.priorities.join(', ')}`]:[]),
+    `${data.reviewed} of ${data.total} reviewed`,
+    `${data.totals.comfortable} comfortable | ${data.totals.concern} concerned | ${data.totals.clarify} unsure | ${data.totals.skipped} skipped | ${data.totals.unseen} not reviewed`,
+    `Reading depth: ${data.depth}. ${data.coverage}`,
+    `Source: ${data.source.url||data.source.kind}`,`Source fetched: ${data.source.fetchedAt||'Not recorded'}`,`Scope: ${data.source.scope||'Not recorded'}`,
+    'Personal reactions, not acceptance of the policy or legal advice. AI wording may miss or change meaning. Comfortable claims are counted without repeating their details.',
+    ...data.items.map(item=>`\n[${item.id}] ${item.label} · ${item.topic}\n${item.wording}\nExact source (${item.start}–${item.end}):\n${item.sourceQuote}${item.contextQuote?`\nContext:\n${item.contextQuote}`:''}${item.question?`\nSaved question: ${item.question}`:''}${item.note?`\nSaved note: ${item.note}`:''}`)
+  ].join('\n');
+}
+function downloadFile(content,type,suffix,name=platformName()){
+  const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const link=document.createElement('a');
+  link.href=url;link.download=`${name.replace(/[^a-z0-9]+/gi,'-').slice(0,60)}-${suffix}`;link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function downloadPdf(){
+  if(exportBusy)return;
+  const data=reportData(), review=state;exportBusy=true;exportError='';render();
+  try{
+    const [{createReportPdf},pdfLib,fontkit,fontResponse]=await Promise.all([
+      import('./report-pdf.js'),import('./vendor/pdf-lib.js'),import('./vendor/fontkit.js'),
+      fetch('fonts/instrument-sans.ttf',{signal:AbortSignal.timeout(15_000)})
+    ]);
+    if(!fontResponse.ok)throw new Error('The report font could not load. Try again or save as text.');
+    const bytes=await createReportPdf(data,{...pdfLib,fontkit:fontkit.default,fontBytes:new Uint8Array(await fontResponse.arrayBuffer())});
+    downloadFile(bytes,'application/pdf','review.pdf',data.title.replace(/ report$/,''));
+  }catch(error){if(state===review)exportError=error.message||'The PDF could not be created. Save as text instead.';}
+  finally{exportBusy=false;if(state===review&&screen==='report')render();}
+}
+function fullReportText(){
   const c=counts(points());
   return ['PLAINER · PERSONAL PRIVACY POLICY REVIEW',state.title,`Document added: ${state.createdAt}`,`Report exported: ${new Date().toISOString()}`,`Cards reviewed: ${reviewed().length}/${points().length}${analysis.readingMode==='user'?'; selective overview, not complete policy coverage':''}`,`${c.concern} concerned | ${c.clarify} unsure | ${c.comfortable} comfortable | ${c.unreviewed} still to review`,`Analysis: ${analysis.readingMode==='user'?`User overview; ${analysis.unclaimedUnitIds.length} source units not summarized`:analysis.mode==='model-assisted'?`${analysis.modelCount} AI draft claims; ${points().length-analysis.modelCount} exact passages; status ${analysis.status||'unknown'}`:'Exact source passages only'}`,`Source: ${state.source?.finalUrl||state.source?.kind||'paste'}`,`Source fetched: ${state.source?.fetchedAt||'Not recorded'}`,`Scope: ${state.source?.scope||'Not recorded'}`,`\nThis report records personal reactions, not legal advice or acceptance. Check AI claims against the original wording. Topic suggestions are navigation aids, not risk ratings.`,`\nNOTE TO MY FUTURE SELF\n${state.reflection||'(None)'}`,...ordered().map(p=>{const r=response(p.id);return `\n[${p.id}] ${p.title}\nReaction: ${reactions[r.reaction]||'Not reviewed'}${r.reaction==='concern'&&r.dealbreaker?' · POTENTIAL DEALBREAKER':''}\n${r.question?`Question: ${r.question}\n`:''}${r.note?`Note: ${r.note}\n`:''}Exact source characters ${p.start}–${p.end}:\n${p.text.trim()}${r.rewording?`\nOriginal claim: ${p.title}\nRewording shown: ${r.rewording}`:''}${p.contextQuote?`\nCited context:\n${p.contextQuote.trim()}`:''}`;}),`\nORIGINAL POLICY (COMPLETE)\n${state.text}`].join('\n');
 }
@@ -354,8 +426,7 @@ root.addEventListener('click',e=>{const button=e.target.closest('[data-action]')
   if(action==='home'){flowToken++;screen='paste';pending=null;busy='';importError='';render();focusEntry();}
   if(action==='own'){flowToken++;busy='';ownOpen=!ownOpen;importError='';render();root.querySelector('[data-action="own"]')?.focus({preventScroll:true});}
   if(action==='featured'){ownOpen=false;openFeatured(id,readingMode);}
-  if(action==='reading-depth'&&['user','lawyer'].includes(button.dataset.mode)&&!busy){readingMode=button.dataset.mode;render();root.querySelector(`[data-action="reading-depth"][data-mode="${readingMode}"]`)?.focus({preventScroll:true});}
-  if(action==='intake-preference'&&TOPICS[id]&&!busy){intakePreferences=intakePreferences.includes(id)?intakePreferences.filter(t=>t!==id):[...intakePreferences,id];render();const focus=root.querySelector('#intake-focus');if(focus)focus.open=true;root.querySelector(`[data-action="intake-preference"][data-id="${id}"]`)?.focus({preventScroll:true});}
+  if(action==='reading-depth'&&['user','lawyer'].includes(button.dataset.mode)&&!busy){previousReadingMode=readingMode;readingMode=button.dataset.mode;render();root.querySelector(`[data-action="reading-depth"][data-mode="${readingMode}"]`)?.focus({preventScroll:true});}
   if(action==='input-mode'){flowToken++;inputMode=id;busy='';importError='';render();root.querySelector(`#tab-${id}`)?.focus();}
   if(action==='choose-file')root.querySelector('#policy-file')?.click();
   if(action==='remove-file'){selectedFile=null;render();root.querySelector('[data-action="choose-file"]')?.focus();}
@@ -365,6 +436,9 @@ root.addEventListener('click',e=>{const button=e.target.closest('[data-action]')
   if(action==='about')openModal(`<div class="modal-top"><h2 id="modal-title">How this review works</h2><button class="secondary" data-close>Close</button></div><div class="help-copy"><p>Choose a privacy policy and reading depth, check the text we extracted, then review one source-linked claim at a time. Mark claims comfortable, concerning, or unsure, skip, or request a rewording. Your report keeps your reactions and unfinished material together.</p><p><strong>Analysis:</strong> policy text is sent to the server and OpenAI to propose claims. Those paraphrases are not legally verified; check the exact source before relying on them. If analysis fails, you can continue with exact source passages.</p><p><strong>Your review:</strong> reactions and notes are saved in this browser. They are not sent to the policy provider. Anyone using this browser profile may be able to reopen them; “Clear review” removes them here.</p></div>`);
   if(action==='reset'){openModal(`<div class="modal-top"><h2 id="modal-title">Clear this review?</h2><button class="secondary" data-close>Keep review</button></div><p class="help-copy">This removes the saved policy, reactions, questions, and notes from this browser. Download your report first if you’d like to keep a copy.</p><button class="primary" id="confirm-clear">Clear review</button>`);document.querySelector('#confirm-clear').onclick=()=>{try{localStorage.removeItem(KEY);}catch{toast('Could not remove browser storage. Clear site data in your browser settings.');return;}flowToken++;closeModal();state=null;analysis=null;pending=null;draft={title:'',text:'',url:''};screen='paste';render();};}
   if(action==='resume'){flowToken++;busy='';importError='';resumeDepth();}
+  if(action==='priorities')openPriorities();
+  if(action==='help')helpReview();
+  if(action==='report-info')reportInfo();
   if(action==='overview')setScreen('overview');
   if(action==='edit'){flowToken++;draft={...draft,text:state.text,title:state.title};inputMode='paste';screen='import';render();focusEntry();}
   if(action==='preference'){const currentId=current()?.id;state.preferences=state.preferences.includes(id)?state.preferences.filter(t=>t!==id):[...state.preferences,id];cursor=Math.max(0,sequence().findIndex(p=>p.id===currentId));save();render();}
@@ -388,13 +462,15 @@ root.addEventListener('click',e=>{const button=e.target.closest('[data-action]')
   if(action==='previous'){rewordError='';cursor--;setScreen('review');}
   if(action==='continue'){if(cursor>=ordered().length-1)setScreen('report');else{cursor++;setScreen('review');}}
   if(action==='report')setScreen('report');
-  if(action==='download'){const blob=new Blob([reportText()],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`${state.title.replace(/[^a-z0-9]+/gi,'-').slice(0,60)}-review.txt`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Your full report has been downloaded.');}
+  if(action==='download')downloadPdf();
+  if(action==='download-text')downloadFile(reportText(),'text/plain;charset=utf-8','review.txt');
+  if(action==='download-full')downloadFile(fullReportText(),'text/plain;charset=utf-8','full-record.txt');
   if(action==='print')window.print();
 });
 let printDisclosures = [];
 window.addEventListener('beforeprint', () => {
   if (printDisclosures.length) return;
-  printDisclosures = [...root.querySelectorAll('.report-section details')].map(element => ({element, open:element.open}));
+  printDisclosures = [...root.querySelectorAll('.attention-panel details')].map(element => ({element, open:element.open}));
   printDisclosures.forEach(({element}) => { element.open = true; });
 });
 window.addEventListener('afterprint', () => {

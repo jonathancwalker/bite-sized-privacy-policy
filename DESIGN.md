@@ -23,26 +23,34 @@ The interface uses pale graph paper, Instrument Sans, and white cards with thin 
 ## Entry
 
 - Large, optically balanced policy marks and labels share one bordered tile.
-- Quick overview is selected by default. The compact pill toggle also offers Detailed review, with no subtitle or mandatory selection step.
-- Focus areas is an optional, collapsed disclosure. It applies to new reviews and never gates intake; preferences reorder and highlight without removing claims.
+- Quick overview is selected by default. The compact pill toggle also offers Lawyer mode. A short explanation changes underneath in primary ink on a pale blue surface; the selected pill slides between positions. There is no mandatory selection step.
+- Priority areas opens a modal with staged selections and Done/Cancel. Preferences reorder and highlight without removing claims; absent topics remain selected across reload. A saved review sits beside the main homepage column and below it on mobile.
 - Upload, Paste, and URL appear immediately when the own-policy panel opens. Source preview still precedes model analysis.
 
 ## Review
 
-- A contained progress card shows the reaction distribution, labeled counts, reading depth, and report access. It becomes compact at narrow widths.
+- A contained, platform-named progress card shows one sliver per card in first-response order, labeled totals, and report access. Revisits update the existing sliver; legacy saved reactions fall back to source order. How to use sits directly below the panel. It becomes compact at narrow widths.
 - The claim workspace has a bounded height. Long wording scrolls inside a focusable reading region; the source/reword tools and response dock remain outside that region. Advancing preserves page scroll.
 - Comfortable, Concerned, and Unsure are parallel choices. Skip is a separate dashed control beside Back and Next. A single click selects, Next confirms, and double-click remains a shortcut.
 - Check source and Reword claim remain prominent. Occasional actions live in Review menu; Undo is available there during active review only.
-- Explicit focus topics get a blue edge and short arrival animation. Rewording adds a tinted accuracy note after success. Reduced-motion preferences disable these animations.
+- Explicit priority topics get a blue edge with slow, subtle border movement. Rewording adds a tinted accuracy note after success. Reduced-motion preferences disable these animations.
 
 ## Report
 
-- Summary, topic map, claim details, and utilities each have a bordered surface.
+- Use a platform-specific report heading. Summary, topic map, Needs attention, and utilities each have a bordered surface. Only concerned and unsure claims are expanded below the map; other cards remain reachable through their squares. Topic counts use clear badges, not small gray captions.
 - Each map square represents exactly one claim, grouped by topic. Its symbol/color records a stored response, not a pending selection. Hover exposes wording through a native title; accessible names include the wording and status; click returns to that claim.
 - Fine-pointer squares are 28px with 6px gaps; coarse-pointer squares are 44px. Other primary controls are at least 44px high. The entire square is interactive.
-- Skipped and unseen remain separate. All wording and source disclosures remain available in the detailed groups and export.
+- Skipped and unseen remain separate. All wording and source disclosures remain available by revisiting a square and in the complete source record.
 - No Undo or new note entry appears on the report; previously saved notes remain visible.
+
+## PDF report
+
+- Generate the file locally in the browser, using self-hosted PDF/font libraries and Instrument Sans. Export does not send reactions or source text to a service.
+- Put chosen priorities and five response totals first. Follow with concerned, unsure, skipped, and unseen claims in that order; omit comfortable claim details.
+- Preserve exact source wording and cited context with each included claim. Paginate long passages, label continuations, and retain readable margins and page numbers.
+- Use the same graph-paper margin, white reading surfaces, and reaction colors as the app. The complete source record remains a separate text download in Review menu.
+- Unsupported font glyphs produce a clear error and a text-download alternative rather than silent character replacement. The PDF is not a tagged accessibility document.
 
 ## Verification boundary
 
-Automated state/rendering tests and declared-color contrast calculations do not establish rendered usability. Live desktop/mobile layout, long-text scrolling, zoom, keyboard/screen-reader behavior, animation, and print appearance still require browser inspection. The implementation has not been deployed.
+Automated state/rendering tests and declared-color contrast calculations do not establish rendered usability. Live desktop/mobile layout, long-text scrolling, zoom, keyboard/screen-reader behavior, animation, and the download interaction still require browser inspection. A generated three-page PDF sample has been rendered and visually inspected; this does not verify the browser UI. The implementation has not been deployed.
