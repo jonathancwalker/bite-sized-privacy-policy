@@ -71,3 +71,24 @@ The user rejected the serif/off-white treatment as “very AI-esque” and asked
 These are alternatives for discussion, not a decision about the final brand. Open File most visibly preserves the prior starter-first hierarchy. Spotlight makes the mission energetic but may feel urgent; Margin Notes makes source grounding tangible but may feel editorial; Plain Talk feels accessible but risks sounding too casual. The user has not yet evaluated or selected a direction.
 
 Attribution: rejection of the prior aesthetic and mission-first brief from the user; four proposals and gallery implementation from Codex; read-only critique by a sub-agent. Evidence: [journal](journal/2026-11-17-visual-language-exploration.md), [browser experiment](experiments.md#e06--homepage-visual-direction-gallery), [concept screenshots](assets/index.md).
+
+## D09 — Try two reading modes with a selective overview
+Date: 2026-11-18. Status: proposed in isolated worktree; pending user evaluation.
+
+The user identified both long processing time and excessive card volume. They proposed a faithful, granular lawyer mode and a plainer, intent-focused user mode. Codex interpreted the card-volume concern as a reason for user mode to show fewer selected takeaways while keeping the whole source accessible. Lawyer mode retains detailed source-linked cards. User mode visibly labels unsummarized source units so completion of its cards cannot imply comprehensive policy review. The exact granularity and names remain open to user feedback.
+
+Attribution: modes and product rationale from the user; grouping, disclosure, and implementation from Codex. Evidence: [journal](journal/2026-11-18-reading-modes-cache.md), [pipeline](../tooling/llm-decompose.mjs), [interface](../app/app.js).
+
+## D10 — Cache only official catalog text and matching analyses
+Date: 2026-11-18. Status: superseded by D11.
+
+The user proposed saving results for the familiar homepage policies and avoiding duplicate calls. Codex chose a 24-hour local import cache plus versioned analysis keys for exact text, model, and mode. The server first verifies that analysis text matches its own catalog import; arbitrary pasted, uploaded, or edited text does not enter the persistent cache. The cache is local and ignored by Git. A prewarm command makes initial featured-policy visits fast after preparation. This is not yet a hosted deployment strategy.
+
+The user then clarified that saving prepared results was sufficient; the runtime cache and prewarm command were removed. Attribution: caching opportunity from the user; interim cache lifetime, keying, and privacy boundary from Codex. Evidence: [journal](journal/2026-11-18-reading-modes-cache.md), [experiment](experiments.md#e07--reading-modes-and-featured-policy-cache).
+
+## D11 — Save featured results and open them directly
+Date: 2026-11-18. Status: implemented in isolated worktree; pending user evaluation.
+
+The user explicitly preferred saving prepared results over a runtime cache so featured policies can open directly. Codex saved dated, versioned source and both mode analyses for Meta, TikTok US, and YouTube/Google as static files. Clicking a homepage tile opens the saved user overview without source fetching or model generation; switching to lawyer mode reads the same saved file. A deliberate `save-featured` command refreshes snapshots. New source versions do not update automatically, so the interface displays the fetch date and points readers to the original page.
+
+Attribution: saved-results direction from the user; snapshot format, refresh command, and direct route from Codex. Evidence: [saved files](../app/data/featured/), [interface](../app/app.js), [refresh script](../scripts/save-featured.mjs), [experiment](experiments.md#e07--reading-modes-and-featured-policy-cache).
