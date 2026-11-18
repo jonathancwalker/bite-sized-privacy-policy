@@ -127,8 +127,9 @@ async function handle(req, res, { apiKey, ingest, decompose, reword } = {}) {
       if (req.method !== 'POST') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'Use POST to reword a claim.');
       const body=await readJson(req);
       if(typeof body.claim!=='string'||!body.claim.trim()||body.claim.length>600||typeof body.sourceQuote!=='string'||body.sourceQuote.length<12||body.sourceQuote.length>4000||body.contextQuote!=null&&(typeof body.contextQuote!=='string'||body.contextQuote.length>2000))throw new HttpError(400,'INVALID_CLAIM','This claim could not be reworded.');
+      if(body.previousWording!=null&&(typeof body.previousWording!=='string'||body.previousWording.length>600))throw new HttpError(400,'INVALID_CLAIM','This claim could not be reworded.');
       if(!apiKey)throw new HttpError(503,'MODEL_UNAVAILABLE','Rewording is unavailable in this local run. Restart the server with OPENAI_API_KEY set.');
-      const reworded=await (reword||rewordClaim)({claim:body.claim,sourceQuote:body.sourceQuote,contextQuote:body.contextQuote||''},{apiKey});
+      const reworded=await (reword||rewordClaim)({claim:body.claim,sourceQuote:body.sourceQuote,contextQuote:body.contextQuote||'',previousWording:body.previousWording||body.claim},{apiKey});
       return json(res,200,{reworded});
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405, 'METHOD_NOT_ALLOWED', 'This route does not accept that request method.');
