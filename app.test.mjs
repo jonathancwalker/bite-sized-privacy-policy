@@ -20,7 +20,7 @@ async function client(saved = null) {
   });
   const source = (await readFile(new URL('./app/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
   vm.runInContext(source, context);
-  return {root, context, events, click:(action,id,detail=1)=>events.get('root:click')({detail,target:{closest:()=>({dataset:{action,id}})}}), run:source => vm.runInContext(source, context)};
+  return {root, context, events, click:(action,id,detail=1,attributes={})=>events.get('root:click')({detail,target:{closest:()=>({dataset:{action,id,...attributes}})}}), run:source => vm.runInContext(source, context)};
 }
 
 const text = 'We delete your account data after 30 days.';
@@ -140,8 +140,10 @@ test('double-click confirms exactly one card and skipped cards remain unfinished
 });
 test('depth labels and report sections are concise', async () => {
   const app = await client(twoCards);
-  const modes = app.run("modeChoice('featured')");
-  assert.match(modes, /User view/);
+  const modes = app.run("modeChoice()");
+  assert.match(modes, /Quick overview/);
+  assert.match(modes, /Detailed review/);
+  assert.doesNotMatch(modes, /<small/);
   assert.doesNotMatch(modes, /a few high-level themes|granular claims/);
   const report = app.run('reportView()');
   assert.match(report, /Left to review/);
@@ -350,7 +352,7 @@ test('Back to report exits an unsure round immediately without confirming a pend
   app.click('report');
   assert.equal(app.run('screen'),'report');
   assert.equal(app.run('state.responses["point-003"].reaction'),'clarify');
-  assert.match(app.root.innerHTML,/Accepted · 2/);
+  assert.match(app.root.innerHTML,/Comfortable · 2/);
 });
 
 test('a review with no unsure cards offers no restart disguised as Revisit cards', async () => {
@@ -358,4 +360,108 @@ test('a review with no unsure cards offers no restart disguised as Revisit cards
   assert.doesNotMatch(app.run('reportView()'),/>Revisit cards<\/button>/);
   app.click('review-unsure');
   assert.equal(app.run('screen'),'report');
+});
+
+test('own-policy intake opens immediately with quick overview selected', async () => {
+  const app=await client();
+  app.click('own');
+  assert.equal(app.run('readingMode'),'user');
+  assert.match(app.root.innerHTML,/id="policy-file"/);
+  assert.match(app.root.innerHTML,/data-mode="user"[^>]*aria-pressed="true"/);
+  assert.doesNotMatch(app.root.innerHTML,/choose-own-mode|How would you like to read it/);
+});
+
+test('changing the intake depth keeps the pasted policy and file ready', async () => {
+  const app=await client();
+  app.run("draft={title:'Retention',text:'We delete account data after 30 days.',url:''}; selectedFile={name:'policy.txt',size:100}; ownOpen=true; inputMode='paste'");
+  app.click('reading-depth',undefined,1,{mode:'lawyer'});
+  assert.equal(app.run('readingMode'),'lawyer');
+  assert.equal(app.run('draft.text'),'We delete account data after 30 days.');
+  assert.equal(app.run('selectedFile.name'),'policy.txt');
+  assert.match(app.root.innerHTML,/data-mode="lawyer"[^>]*aria-pressed="true"/);
+  assert.match(app.root.innerHTML,/id="policy-text"/);
+});
+
+test('one featured-policy click uses the selected depth without an extra gate', async () => {
+  const app=await client();
+  app.run('openFeatured=(id,mode)=>{ globalThis.opened={id,mode}; }');
+  app.click('featured','meta');
+  assert.equal(app.run('opened.id'),'meta');
+  assert.equal(app.run('opened.mode'),'user');
+  app.click('reading-depth',undefined,1,{mode:'lawyer'});
+  app.click('featured','tiktok-us');
+  assert.equal(app.run('opened.mode'),'lawyer');
+});
+
+test('optional intake focus highlights retention without removing other claims', async () => {
+  const app=await client();
+  app.click('intake-preference','retention');
+  app.context.imported={title:'Policy',text:twoCards.text.split('\n\n')[0]+'\n\n'+text,source:{kind:'paste'}};
+  app.run('pending=imported; replaceWithPrepared(analyzePolicy(imported.text))');
+  assert.deepEqual(Array.from(app.run('state.preferences')),['retention']);
+  assert.equal(app.run('points().length'),2);
+  assert.equal(app.run('ordered().length'),2);
+  assert.equal(app.run('current().topic'),'retention');
+  assert.match(app.root.innerHTML,/Your focus/);
+  app.click('skip',undefined,2);
+  assert.doesNotMatch(app.root.innerHTML,/Your focus/);
+});
+
+test('the report map accounts for every claim and distinguishes skipped from unseen', async () => {
+  const app=await client(followUpCards);
+  const html=app.run('reportView()');
+  assert.equal([...html.matchAll(/data-map-id="point-/g)].length,5);
+  for(const [id,status] of [['001','concern'],['002','comfortable'],['003','clarify'],['004','skipped'],['005','unseen']]){
+    assert.match(html,new RegExp('data-map-id="point-'+id+'"[^>]*data-state="'+status+'"'));
+  }
+  app.click('point','point-003');
+  assert.equal(app.run('current().id'),'point-003');
+  app.click('react','comfortable');
+  app.click('report');
+  assert.equal(app.run('state.responses["point-003"].reaction'),'clarify');
+});
+
+test('the report omits Undo while the active review still offers recovery', async () => {
+  const app=await client(twoCards);
+  app.run("setScreen('review')");app.click('react','comfortable');app.click('confirm');
+  assert.match(app.root.innerHTML,/data-action="undo"/);
+  app.click('report');
+  assert.doesNotMatch(app.root.innerHTML,/data-action="undo"/);
+});
+
+test('successful rewording reveals an accuracy note and retains the exact source', async () => {
+  const app=await client();
+  app.context.imported={title:'Policy',text,source:{kind:'paste'}};
+  app.context.prepared=preparedAnalysis(raw,text);
+  app.run('pending=imported; replaceWithPrepared(prepared)');
+  const source=app.run('current().text');
+  assert.doesNotMatch(app.root.innerHTML,/Reworded for clarity/);
+  app.context.fetch=async()=>({ok:true,json:async()=>({reworded:'After 30 days, your account information is removed.'})});
+  await app.run('rewordCurrent()');
+  assert.match(app.root.innerHTML,/Reworded for clarity/);
+  assert.match(app.root.innerHTML,/may change or miss meaning/);
+  assert.equal(app.run('current().text'),source);
+  assert.equal(app.run('response(current().id).rewording'),'After 30 days, your account information is removed.');
+});
+
+test('advancing from email collection to phone collection keeps the reading position', async () => {
+  const app=await client(twoCards);
+  app.run("setScreen('review')");
+  const scrolls=[];
+  app.context.window.scrollTo=(...args)=>scrolls.push(args);
+  app.click('react','comfortable');
+  app.click('confirm');
+  assert.equal(app.run('cursor'),1);
+  assert.equal(scrolls.length,0,'Next must not jump the page back to the header');
+});
+
+test('the printable report identifies the policy without the app header', async () => {
+  const app=await client(followUpCards);
+  assert.match(app.run('reportView()'),/Contact details/);
+});
+
+test('an own-policy URL failure appears once beside the URL form', async () => {
+  const app=await client();
+  app.run("ownOpen=true; inputMode='url'; importError='This policy page could not be fetched.'; render()");
+  assert.equal(app.root.innerHTML.split('This policy page could not be fetched.').length-1,1);
 });
