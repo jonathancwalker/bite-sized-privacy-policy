@@ -1,0 +1,36 @@
+[
+  {
+    "id": "tiktok-us",
+    "claim": "TikTok shares information with service providers and business partners as needed to run its business, including processing payments, advertising, analytics, and data storage.",
+    "sourceQuote": "We share Information We Collect with service providers and business partners as necessary to help us perform business operations and for business purposes, including research, payment processing and transaction fulfillment, administering contests and special offers, technology services, deliveries, sending communications, advertising and marketing services, analytics, measurement, data storage and hosting, disaster recovery, and search engine optimization.",
+    "contextQuote": "",
+    "reworded": "TikTok shares the information it collects with service providers and business partners when needed to run its business. This includes sharing information to process payments, provide advertising, analyze data, and store data.",
+    "status": 200,
+    "seconds": 5.1
+  },
+  {
+    "id": "tiktok-us-repeat",
+    "claim": "TikTok shares information with service providers and business partners as needed to run its business, including processing payments, advertising, analytics, and data storage.",
+    "previousWording": "TikTok shares the information it collects with service providers and business partners when needed to run its business. This includes sharing information to process payments, provide advertising, analyze data, and store data.",
+    "reworded": "TikTok works with service providers and business partners to run its business, including processing payments, advertising, analyzing data, and storing data. It shares the information it collects with them as needed for this work.",
+    "status": 200
+  },
+  {
+    "id": "youtube-google",
+    "claim": "How long Google keeps data depends on the data, its use and your settings. You can delete some data or set account activity to delete automatically. Other data is automatically deleted or anonymized, kept until you delete your account, or kept longer when needed for business or legal purposes.",
+    "sourceQuote": "We retain the data we collect for different periods of time depending on what it is, how we use it, and how you configure your settings:\n\n• Some data you can delete whenever you like, such as your personal info or the content you create or upload, like photos and documents . You can also delete activity information saved in your account, or choose to have it deleted automatically after a set period of time. We’ll keep this data in your Google Account until you remove it or choose to have it removed.\n\n• Other data is deleted or anonymized automatically after a set period of time, such as advertising data in server logs.",
+    "contextQuote": "• We keep some data until you delete your Google Account, such as information about how often you use our services.\n\n• And some data we retain for longer periods of time when necessary for legitimate business or legal purposes, such as security, fraud and abuse prevention, or financial record-keeping.",
+    "reworded": "Google decides how long to keep data based on what it is, how Google uses it, and your settings; you can delete some data whenever you want or set saved account activity to be deleted automatically after a set time. For other data, Google either deletes it or makes it anonymous after a set time, keeps it until you delete your Google Account, or keeps it longer when necessary for legitimate business or legal purposes.",
+    "status": 200,
+    "seconds": 7.5
+  },
+  {
+    "id": "youtube-google-short-sentences",
+    "claim": "How long Google keeps data depends on the data, its use and your settings. You can delete some data or set account activity to delete automatically. Other data is automatically deleted or anonymized, kept until you delete your account, or kept longer when needed for business or legal purposes.",
+    "sourceQuote": "We retain the data we collect for different periods of time depending on what it is, how we use it, and how you configure your settings:\n\n• Some data you can delete whenever you like, such as your personal info or the content you create or upload, like photos and documents . You can also delete activity information saved in your account, or choose to have it deleted automatically after a set period of time. We’ll keep this data in your Google Account until you remove it or choose to have it removed.\n\n• Other data is deleted or anonymized automatically after a set period of time, such as advertising data in server logs.",
+    "contextQuote": "• We keep some data until you delete your Google Account, such as information about how often you use our services.\n\n• And some data we retain for longer periods of time when necessary for legitimate business or legal purposes, such as security, fraud and abuse prevention, or financial record-keeping.",
+    "reworded": "The type of data, how Google uses it, and your settings determine how long Google keeps it. You can delete some data yourself or set saved account activity to delete automatically after a set time. Google automatically deletes or anonymizes other data after a set time, but keeps some until you delete your Google Account. Google keeps some data longer when necessary for legitimate business or legal purposes.",
+    "requests": 1,
+    "seconds": 6.9
+  }
+]

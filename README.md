@@ -21,8 +21,9 @@ The Node server is a local development server. Its API accepts requests addresse
 1. Choose a featured policy or expand **Review my own policy**.
 2. Choose **Quick overview** or **Detailed review** before proceeding.
 3. For an own policy, upload TXT/RTF/DOCX/text-PDF, paste text, or enter a public HTTPS URL; check the extracted text before analysis.
-4. Choose topics to see first, then **Accept**, **Reject**, **Skip**, or **Reword** each claim. Original wording stays available through **Check source**.
-5. Resume the review later or export a personal report. Reactions do not accept, amend, or negotiate a policy.
+4. Open the first card directly. Single-click **Accept**, **Reject**, **I’m unsure**, or **Skip** to select; **Next** confirms and advances. Double-click a response as a shortcut. **Undo last response** reverses the latest confirmation. **Reword** asks for a rebuilt explanation; original wording stays available through **Check source**. Topic ordering is optional in Review settings.
+5. Resume the review later or open a report grouped into Needs attention, Left to review, and Accepted. **Revisit cards** opens only unsure cards; **Review my concerns** revisits rejected and unsure cards; **Finish skipped cards** revisits only skipped cards; **Continue review** includes skipped and unseen cards. **Back to report** exits a round immediately without confirming a pending selection. Completing a round also returns to the full report. Unsure needs no note or question. Reactions do not accept, amend, or negotiate a policy.
+6. **Change depth** from Review settings or the report. Each depth keeps its own confirmed reactions, rewordings, position, and follow-up queue. An overview acceptance never accepts detailed claims automatically. Reopening the same saved featured policy also preserves this progress.
 
 Quick overview selects a few themes and explicitly leaves some source material unsummarized. Detailed review produces more granular cards, including exact-source fallback passages when needed. Neither mode implies legal review. The current saved overviews have 8 Meta, 4 TikTok US, and 10 Google cards; detailed reviews have 174, 121, and 291 respectively.
 
@@ -30,12 +31,12 @@ The [feature inventory](FEATURE_LIST.md) is the current backlog. [Portfolio deci
 
 ## Data and source integrity
 
-- One review is saved in the browser's local storage. Reactions and notes are not sent to the policy provider. Clearing or replacing a review is explicit; restricted storage may prevent recovery.
+- One policy, with separate progress for each prepared reading depth, is saved in the browser's local storage. Reactions and notes are not sent to the policy provider. Clearing or replacing a review is explicit; restricted storage may prevent recovery.
 - Own-policy text goes to the local server and OpenAI for claim generation. Rewording sends the selected claim and its source/context. Model requests use `store:false`; this is not a guarantee of zero provider retention.
 - Intake records provenance and extraction warnings. The app accepts up to 80,000 characters or a 12 MiB file. URL downloads are limited to 3 MB and 15 seconds; every destination is checked, and production HTTPS connections use the validated public DNS addresses.
 - Source decomposition preserves exact text and offsets. Model claims must cite their assigned source units; optional context must cite a neighboring unit. Malformed entries are rejected, and failures keep the source available.
 - Exact quote matching proves the citation exists. It does **not** prove that a paraphrase preserves meaning. Claim quality, broad coverage, and cross-clause dependencies still need evaluation.
-- Saved reviews are validated before recovery. Invalid saved data produces a recovery notice without clearing it. Exports include the source URL, fetch date and scope when recorded, claims, reactions, and the complete original text. Printing expands unfinished claims and source disclosures.
+- Saved reviews are validated before recovery. Invalid saved data produces a recovery notice without clearing it. Exports include the source URL, fetch date and scope when recorded, claims and reactions from the active reading depth, and the complete original text. Printing expands unfinished claims and source disclosures.
 
 ## Saved featured policies
 

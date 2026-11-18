@@ -90,6 +90,23 @@ export function restoreReview(serialized) {
   if (serialized == null) return null;
   const saved = JSON.parse(serialized);
   if (saved == null) return null;
+  const review = restoreSingleReview(saved);
+  const depths = {};
+  if (saved.depths != null) {
+    if (!object(saved.depths)) throw new Error('This saved review has invalid reading depths.');
+    for (const mode of ['user', 'lawyer']) {
+      if (!Object.hasOwn(saved.depths, mode)) continue;
+      const snapshot = saved.depths[mode];
+      if (!object(snapshot)) throw new Error('This saved review has invalid reading depths.');
+      const restored = restoreSingleReview({...saved, ...depthSnapshot(snapshot), depths:undefined});
+      if (reviewDepth(restored) !== mode) throw new Error('This saved review has mismatched reading depths.');
+      if (mode !== reviewDepth(review)) depths[mode] = depthSnapshot(restored);
+    }
+  }
+  return {...review, depths};
+}
+
+function restoreSingleReview(saved) {
   if (!object(saved) || ![1, 2].includes(saved.version) || typeof saved.text !== 'string' ||
       !saved.text.trim() || saved.text.length > MAX_POLICY_CHARS || !object(saved.responses) ||
       typeof saved.title !== 'string' || !Number.isFinite(Date.parse(saved.createdAt))) {
@@ -129,12 +146,40 @@ export function restoreReview(serialized) {
     response.dealbreaker = response.reaction === 'concern' && value.dealbreaker === true;
     responses[id] = response;
   }
+  let queue = null;
+  if (object(saved.queue) && ['attention','unfinished','skipped','unsure'].includes(saved.queue.kind) &&
+      Array.isArray(saved.queue.ids)) {
+    const queueIds = [...new Set(saved.queue.ids.filter(id => ids.has(id)))];
+    if (queueIds.length) queue = {kind:saved.queue.kind, ids:queueIds};
+  }
   return {
-    ...saved, analysis, responses,
+    ...saved, analysis, responses, queue,
     preferences:Array.isArray(saved.preferences) ? [...new Set(saved.preferences.filter(topic => analysis.topics.includes(topic)))] : [],
     reflection:typeof saved.reflection === 'string' ? saved.reflection : '',
-    cursor:Number.isInteger(saved.cursor) ? Math.max(0, Math.min(saved.cursor, analysis.points.length - 1)) : 0,
+    cursor:Number.isInteger(saved.cursor) ? Math.max(0, Math.min(saved.cursor, (queue?.ids.length || analysis.points.length) - 1)) : 0,
     screen:SCREENS.has(saved.screen) ? saved.screen : 'overview',
     checkpointTopic:analysis.topics.includes(saved.checkpointTopic) ? saved.checkpointTopic : analysis.topics[0]
   };
+}
+
+
+export const reviewDepth = review => review.analysis.readingMode || 'lawyer';
+
+// Only per-depth state belongs here; the policy source remains shared and unchanged.
+function depthSnapshot(review) {
+  const fields = ['analysis','responses','preferences','reflection','cursor','screen','checkpointTopic','queue'];
+  return Object.fromEntries(fields.map(field => [field, review[field]]));
+}
+
+export function switchReviewDepth(review, mode, nextAnalysis = null) {
+  if (!['user','lawyer'].includes(mode)) throw new Error('Unknown reading depth.');
+  if (reviewDepth(review) === mode) return review;
+  const depths = {...review.depths, [reviewDepth(review)]:depthSnapshot(review)};
+  const target = depths[mode] || (nextAnalysis && {
+    analysis:nextAnalysis, responses:{}, preferences:[], reflection:'', cursor:0,
+    screen:'review', checkpointTopic:nextAnalysis.topics[0], queue:null
+  });
+  if (!target || reviewDepth(target) !== mode) throw new Error('Prepare this reading depth first.');
+  delete depths[mode];
+  return {...review, ...target, depths};
 }

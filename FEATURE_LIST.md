@@ -33,24 +33,30 @@ Status: **Local** = implemented in the local app; **Partial** = present but need
 
 | Feature | Status | What exists / next step |
 | --- | --- | --- |
-| One focused claim card at a time | Local | The card shows the claim, topic, progress, and four actions: Accept, Reject, Skip, Reword. Original wording is behind Check source rather than on the card. |
-| Personal reactions | Local | Accept/Reject record a reaction to the **claim**, not acceptance or rejection of a policy. Skip leaves the claim unfinished in the report. Revisit can change a reaction. |
-| AI rewording | Local, refine | Reword requests a shorter alternate wording from the server and marks the card as AI-reworded. The new wording remains unverified; compare it with the original. Consider whether people need examples or a question path after trying this interaction. |
+| One focused claim card at a time | Local | The card shows the claim, topic and progress. A single click selects Accept, Reject, I’m unsure or Skip; Next confirms, with double-click as a shortcut and Undo for the latest confirmation. Reword rebuilds the explanation. Original wording is behind Check source rather than on the card. |
+| Personal reactions | Local | Accept/Reject record a reaction to the **claim**, not acceptance or rejection of a policy. Unsure records uncertainty without a note and appears under Needs attention. Skip leaves the claim unfinished in the report. Revisit can change a reaction. |
+| Independent progress by reading depth | Local | Change depth from settings or the report without replacing the policy. Each mode retains its own answers, rewordings, cursor, and follow-up queue; returning to a prepared mode needs no model call. Reopening the same featured snapshot also resumes it. Failed or abandoned preparation leaves the previous mode intact. |
+| AI rewording | Local, refine | Reword requests a newly structured explanation, which may be longer, and marks the card as AI-reworded. Cosmetic token changes or sentences over 35 words trigger one retry; repeated cosmetic output leaves the current wording intact. This heuristic does not verify clarity or meaning. The new wording remains unverified; compare it with the original. Consider whether people need examples or a question path after trying this interaction. |
 | Ambient card cues | Local, refine | Priority topics, Quick overview, and AI rewordings receive subtle card treatment. Check with readers whether these cues are noticeable and understandable without implying a risk score. |
-| Progress and section checkpoints | Local | Progress tracks handled cards; topic checkpoints and resume flow exist. Checkpoint copy keeps skipped claims unfinished rather than describing the entire topic as reviewed. |
-| Explicit topic preferences | Partial | Readers can choose topics to see first; selected topics affect order and card highlighting. Topic assignment still uses text matching and should not be interpreted as a risk rating. Preferences do not hide other content. |
-| Clarification questions, notes, and potential dealbreakers | Partial / revisit | Older saved responses and report fields support these, but the new minimal card does not offer an entry path. Earlier proposals included a saved question, optional concern note, and dealbreaker flag. Decide how to add them without crowding the card. |
-| Pause, resume, and browser persistence | Local | One review is saved in local storage at a time. Replacing or clearing it is explicit. Recovery validates saved cards and source ranges; invalid data stays stored with a recovery notice. Private browsing or disabled storage can prevent recovery. |
+| Progress and section checkpoints | Local | Progress counts reviewed cards, with skipped cards stated separately. Cards continue without topic interruptions; older saved checkpoints remain resumable. New reviews open on the first card. |
+| Explicit topic preferences | Partial | Optional Review settings let readers choose topics to see first; no preference step blocks the card flow. Selected topics affect order and card highlighting. Topic assignment still uses text matching and should not be interpreted as a risk rating. Preferences do not hide other content. |
+| Uncertainty without a note | Local | I’m unsure uses the same select/confirm interaction as other reactions and stays distinct from Skip. No new note or question entry is offered. Older saved questions, notes, and dealbreaker flags remain readable. |
+| Pause, resume, and browser persistence | Local | One policy is saved in local storage at a time, including separate progress for both prepared depths and a resumable follow-up queue. Replacing or clearing it is explicit. Recovery validates saved cards and source ranges; invalid data stays stored with a recovery notice. Private browsing or disabled storage can prevent recovery. |
 
 ## Report and trust
 
 | Feature | Status | What exists / next step |
 | --- | --- | --- |
-| Personal report | Local, refine | Groups accepted, rejected, skipped/unreviewed, and older clarification responses; allows revisiting claims and adding a reflection. Align remaining legacy wording with the new card actions. |
-| Export and print | Local | Download a text report with claims, source passages, full policy, fetch date and scope when known. Browser print expands unfinished claims and restores disclosures afterward. |
+| Personal report | Local, refine | Three collapsible groups: Needs attention (rejected/unsure), Left to review (skipped/unseen), and Accepted. Includes consistent reviewed/remaining counts, revisit actions and an optional note. |
+| Focused follow-up rounds | Local | Revisit cards includes only unsure cards and is hidden when there are none. Back to report exits immediately without confirming a pending response. Review my concerns includes rejected/unsure cards; Finish skipped cards includes only skipped cards; Continue review includes skipped/unseen cards. Membership is fixed for the round so changing an answer does not skip another card. Previous, Undo, refresh/resume, and returning to the full report retain the correct queue. |
+| Export and print | Local | Download a text report for the active depth with claims, source passages, full policy, fetch date and scope when known. Browser print expands unfinished claims and restores disclosures afterward. |
 | Source access and provenance | Local, refine | A claim can open its location in the extracted policy; saved featured analyses display a fetch date. Make the source viewer easier to scan without turning the main card into a source panel. |
 | Honest limits | Local | AI claims are labeled unverified; Quick overview coverage is selective; full policy is available. Do not label output legally verified or silently treat old snapshots as current. |
 | Reader comprehension and usability study | Planned | Test whether the overview gives a working understanding, whether cards feel manageable, and whether people understand Accept/Reject, source cues, and skipped coverage. No such study has been run. |
+
+## Future interaction ideas
+
+- **Suggested approvals — Explore:** group likely acceptable claims using explicit preferences, label the suggestions separately from personal confirmations, and retain source access and reversal. No automatic approval or inferred preference model is implemented.
 
 ## Product boundaries and delivery
 
