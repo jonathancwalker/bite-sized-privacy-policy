@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import * as engine from './app/engine.js';
 import * as reviewState from './app/review-state.js';
+import * as limits from './app/limits.js';
 const { preparedAnalysis, restoreReview } = reviewState;
 import { decompose } from './tooling/decompose.mjs';
 
@@ -13,7 +14,7 @@ async function client(saved = null) {
   const root = {innerHTML:'', addEventListener(name,handler){events.set('root:'+name,handler);}, querySelector(){return null;}, querySelectorAll(){return [];}};
   const storage = new Map(saved == null ? [] : [['bite-sized-review-v1', JSON.stringify(saved)]]);
   const context = vm.createContext({
-    ...engine, ...reviewState,
+    ...engine, ...reviewState, ...limits,
     document:{querySelector:selector => selector === '#app' ? root : null},
     localStorage:{getItem:key => storage.get(key) ?? null, setItem:(key,value) => storage.set(key,value)},
     window:{scrollTo(){},addEventListener:(name, handler) => events.set(name, handler)}, console, setTimeout, clearTimeout, AbortSignal
@@ -30,6 +31,25 @@ const raw = {
   claims:[{unitId:'unit-001', claim:'Account data is deleted after 30 days.', sourceQuote:text, sourceRange:{start:0,end:text.length}, reviewState:'unverified-paraphrase'}],
   nonClaimUnits:[], unclaimedUnitIds:[], rejected:[], failures:[], warnings:[]
 };
+
+test('a 4 MB PDF is rejected at selection before any upload starts', async () => {
+  const app = await client();
+  app.run("selectFile({name:'privacy.pdf',size:4*1024*1024})");
+  assert.equal(app.run('selectedFile'), null);
+  assert.match(app.run('importError'), /3 MB/);
+});
+
+test('a platform rate-limit response gives a useful message even when it is not JSON', async () => {
+  const app = await client();
+  app.context.fetch = async () => ({status:429,ok:false,json:async () => {throw new Error('HTML response');}});
+  await assert.rejects(app.run("apiPost('/api/reword', {})"), /too many requests|wait.*try again/i);
+});
+
+test('a policy length error stays specific instead of becoming an upload-size error', async () => {
+  const app = await client();
+  app.context.fetch = async () => ({status:413,ok:false,json:async () => ({error:'This policy is over the 80,000-character limit.'})});
+  await assert.rejects(app.run("apiPost('/api/decompose', {})"), /80,000-character/);
+});
 
 test('a malformed saved review cannot crash the homepage', async () => {
   const app = await client({version:2, text, title:'Saved policy', responses:{}, analysis:{points:{}, topics:[]}});

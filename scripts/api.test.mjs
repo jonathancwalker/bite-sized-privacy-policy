@@ -51,3 +51,50 @@ test('missing model credentials and invalid imports produce actionable errors', 
   assert.equal((await dispatch('/api/import', {kind:'paste',text:'a'.repeat(80_001)})).status, 413);
   assert.equal((await dispatch('/../package.json')).status, 404);
 });
+
+test('a hosted same-origin policy import works at its configured HTTPS address', async () => {
+  const origin = 'https://plainer-example.vercel.app';
+  const result = await dispatch('/api/import', {kind:'paste',text:'We delete account data after 30 days.'}, {
+    publicOrigins:[origin]
+  }, {host:'plainer-example.vercel.app',origin});
+  assert.equal(result.status, 200);
+  assert.equal(result.json().text, 'We delete account data after 30 days.');
+});
+
+test('hosted API rejects unknown hosts, cross-site origins, and originless POSTs before processing', async () => {
+  let calls = 0;
+  const origin = 'https://plainer-example.vercel.app';
+  for (const headers of [
+    {host:'plainer-example.vercel.app',origin:'https://unrelated.example'},
+    {host:'unrelated.example',origin},
+    {host:'plainer-example.vercel.app'},
+    {host:'localhost:4173',origin:'http://localhost:4173'}
+  ]) {
+    const result = await dispatch('/api/import', {kind:'paste',text:'We collect email addresses.'}, {
+      publicOrigins:[origin], ingest:async () => {calls++; return {text:'We collect email addresses.'};}
+    }, headers);
+    assert.equal(result.status, 403);
+  }
+  assert.equal(calls, 0);
+});
+
+test('a 4 MB policy upload is rejected before extraction so it cannot exceed hosted payload limits', async () => {
+  let calls = 0;
+  const result = await dispatch('/api/import', {
+    kind:'file', filename:'privacy.txt', base64:Buffer.alloc(4 * 1024 * 1024, 'a').toString('base64')
+  }, {ingest:async () => {calls++; return {text:'We collect email addresses.'};}});
+  assert.equal(result.status, 413);
+  assert.match(result.json().error, /3 MB/);
+  assert.equal(calls, 0);
+});
+
+test('a 3 MB upload fits the hosted request and reaches extraction without base64 validation overflow', async () => {
+  const body = {kind:'file',filename:'privacy.pdf',base64:Buffer.alloc(3*1024*1024, 'a').toString('base64')};
+  assert.ok(Buffer.byteLength(JSON.stringify(body)) < 4_500_000);
+  let bytes;
+  const result = await dispatch('/api/import', body, {
+    ingest:async input => {bytes=input.bytes;return {text:'We delete account data after 30 days.'};}
+  });
+  assert.equal(result.status, 200);
+  assert.equal(bytes.length, 3*1024*1024);
+});

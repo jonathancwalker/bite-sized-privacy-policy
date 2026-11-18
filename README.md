@@ -2,6 +2,8 @@
 
 Privacy policies, in plain language.
 
+[Try Plainer](https://plainer-gamma.vercel.app)
+
 ## Intended audience
 
 - People who want to understand how apps collect and use their data.
@@ -19,7 +21,7 @@ Privacy policies, in plain language.
 
 ## Technical stack
 
-- HTML, CSS, and JavaScript interface; Node.js server.
+- HTML, CSS, and JavaScript interface; Node.js API hosted on Vercel.
 - Browser storage saves review progress.
 - pdf-lib and fontkit create PDFs; pdfjs-dist reads uploaded PDFs; esbuild packages browser libraries.
 
@@ -30,7 +32,7 @@ Privacy policies, in plain language.
 
 ## Run locally
 
-- Install **Node.js 22+**, then run from the repository folder:
+- Install **Node.js 22**, then run from the repository folder:
 
 ```sh
 npm ci
@@ -45,6 +47,7 @@ node --env-file=.env scripts/serve.mjs
 ```
 
 - Checks: `npm test`. Static build: `npm run build`.
+- Hosting setup: [Deploy to Vercel](DEPLOYMENT.md).
 
 ## Known limitations
 
@@ -52,9 +55,10 @@ node --env-file=.env scripts/serve.mjs
 - Featured policies are dated snapshots, not automatically refreshed.
 - Progress stays in one browser, with one policy saved at a time.
 - Some websites block imports; scanned PDFs are not supported.
+- Web uploads are limited to 3 MB; lengthy AI requests can time out.
 
 ## What I would improve next
 
-- Deploy publicly with protected API access and request limits.
+- Improve slow imports and support larger files.
 - Test with readers and improve mobile use, accessibility, and clarity.
 - Improve claim accuracy, topic grouping, and policy coverage.

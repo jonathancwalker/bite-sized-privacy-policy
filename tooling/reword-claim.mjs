@@ -16,11 +16,13 @@ export function isCosmeticRewrite(before, after) {
   return row[b.length] <= Math.max(2, Math.floor(Math.max(a.length, b.length) * .15));
 }
 
-export async function rewordClaim({claim,sourceQuote,contextQuote='',previousWording=claim}, {apiKey,model=DEFAULT_MODEL,fetchImpl=fetch}={}) {
+export async function rewordClaim({claim,sourceQuote,contextQuote='',previousWording=claim}, {apiKey,model=DEFAULT_MODEL,fetchImpl=fetch,signal:parentSignal}={}) {
   if (!apiKey) throw new Error('OPENAI_API_KEY is required for rewording.');
-  const signal = AbortSignal.timeout(90_000);
+  const deadline = AbortSignal.timeout(90_000);
+  const signal = parentSignal ? AbortSignal.any([parentSignal,deadline]) : deadline;
   let rejectedWording = '', retryReason = '';
   for (let attempt = 0; attempt < 2; attempt++) {
+    signal.throwIfAborted();
     const input = {claim,sourceQuote,contextQuote,previousWording};
     if (rejectedWording) input.retry = {rejectedWording, reason:retryReason};
     const response = await fetchImpl('https://api.openai.com/v1/responses', {method:'POST',signal,headers:{authorization:`Bearer ${apiKey}`,'content-type':'application/json'},body:JSON.stringify({model,store:false,instructions,input:JSON.stringify(input),text:{format:{type:'json_schema',name:'reworded_claim',strict:true,schema}}})});
