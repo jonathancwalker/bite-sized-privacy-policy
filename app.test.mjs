@@ -435,11 +435,10 @@ test('successful rewording reveals an accuracy note and retains the exact source
   app.context.prepared=preparedAnalysis(raw,text);
   app.run('pending=imported; replaceWithPrepared(prepared)');
   const source=app.run('current().text');
-  assert.doesNotMatch(app.root.innerHTML,/Reworded for clarity/);
+  assert.doesNotMatch(app.root.innerHTML,/AI Re-phrasing Notice:/);
   app.context.fetch=async()=>({ok:true,json:async()=>({reworded:'After 30 days, your account information is removed.'})});
   await app.run('rewordCurrent()');
-  assert.match(app.root.innerHTML,/Reworded for clarity/);
-  assert.match(app.root.innerHTML,/may change or miss meaning/);
+  assert.match(app.root.innerHTML,/<strong>AI Re-phrasing Notice:<\/strong><p>AI rewording may change or miss meaning\.<\/p>/);
   assert.equal(app.run('current().text'),source);
   assert.equal(app.run('response(current().id).rewording'),'After 30 days, your account information is removed.');
 });

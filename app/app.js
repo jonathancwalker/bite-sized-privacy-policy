@@ -219,7 +219,7 @@ function reviewView(){
       <div class="claim-card-label"><span>${escape(TOPICS[p.topic].label)}${priority?'<span class="focus-badge">Your priority</span>':''}</span><span class="sr-only">${state.queue?queueLabels[state.queue.kind]:'Claim'} ${cursor+1} of ${sequence().length}</span></div>
       <div class="claim-reading" role="region" aria-label="Claim wording" tabindex="0">
         <h1 tabindex="-1">${escape(display)}</h1>
-        ${r.rewording?`<aside class="reword-note ${justReworded?'reword-enter':''}" role="status"><strong>Reworded for clarity</strong><p>AI wording may change or miss meaning. Compare it with the source.</p></aside>`:''}
+        ${r.rewording?`<aside class="reword-note ${justReworded?'reword-enter':''}" role="status"><strong>AI Re-phrasing Notice:</strong><p>AI rewording may change or miss meaning.</p></aside>`:''}
         ${rewordError?`<p class="card-error" role="alert">${escape(rewordError)}</p>`:''}
       </div>
       <div class="claim-tools">
