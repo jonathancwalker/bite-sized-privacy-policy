@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs';
 import vm from 'node:vm';
 import * as engine from './app/engine.js';
 import { preparedAnalysis, restoreReview } from './app/review-state.js';
+import { decompose } from './tooling/decompose.mjs';
 
 // Exercise the real client state/rendering code without pretending this is browser layout QA.
 async function client(saved = null) {
@@ -97,4 +98,20 @@ test('browser printing expands unfinished claims and restores disclosures afterw
   assert.deepEqual(disclosures.map(item => item.open), [true, true, true]);
   app.events.get('afterprint')?.();
   assert.deepEqual(disclosures.map(item => item.open), [false, true, false]);
+});
+
+test('blank source units are preserved without creating empty fallback cards', () => {
+  const source = '\n\nPrivacy Policy\n\nWe collect email addresses when you register.';
+  const base = decompose({text:source});
+  const prepared = preparedAnalysis({...base, readingMode:'lawyer', claims:[], nonClaimUnits:[]}, source);
+  assert.ok(prepared.points.length);
+  assert.ok(prepared.points.every(point => point.text.trim()));
+  assert.equal(base.units.map(unit => unit.text).join(''), source);
+});
+
+test('removing a leading blank card does not move a saved reaction to another passage', () => {
+  const saved = {version:1, title:'Policy', text:'\n\nWe collect email addresses when you register.', createdAt:'2026-11-17T12:00:00Z', responses:{'point-002':{reaction:'concern',note:'Keep this note'}}};
+  const restored = restoreReview(JSON.stringify(saved));
+  assert.equal(restored.analysis.points[0].id, 'point-002');
+  assert.equal(restored.responses['point-002'].note, 'Keep this note');
 });

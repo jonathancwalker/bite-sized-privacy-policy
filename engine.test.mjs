@@ -76,3 +76,11 @@ test("empty and whitespace-only documents stay recoverable", () => {
     assert.equal(result.wordCount, 0);
   }
 });
+
+test('leading blank lines do not become an empty review card', () => {
+  const source = '\n\nWe collect email addresses when you register.\n\n';
+  const result = analyzePolicy(source);
+  assertSourceRecovery(source, result);
+  assert.equal(result.points.length, 1);
+  assert.ok(result.points.every(point => point.text.trim()));
+});

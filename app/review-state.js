@@ -5,8 +5,8 @@ const REACTIONS = new Set(['comfortable', 'clarify', 'concern', 'skipped']);
 const SCREENS = new Set(['overview', 'review', 'checkpoint', 'report']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
-function assertRange(text, quote, range) {
-  if (typeof quote !== 'string' || !quote.trim() || !Number.isInteger(range?.start) ||
+function assertRange(text, quote, range, allowWhitespace = false) {
+  if (typeof quote !== 'string' || (!allowWhitespace && !quote.trim()) || !Number.isInteger(range?.start) ||
       !Number.isInteger(range?.end) || range.start < 0 || range.end <= range.start ||
       range.end > text.length || text.slice(range.start, range.end) !== quote) {
     throw new Error('A claim does not match its exact source range. Please prepare the policy again.');
@@ -26,7 +26,7 @@ export function preparedAnalysis(raw, text) {
     if (!object(unit) || typeof unit.id !== 'string' || units.has(unit.id) || unit.start !== end) {
       throw new Error('The policy source units are incomplete.');
     }
-    assertRange(text, unit.text, unit);
+    assertRange(text, unit.text, unit, true);
     units.set(unit.id, unit);
     end = unit.end;
   }
@@ -63,6 +63,7 @@ export function preparedAnalysis(raw, text) {
     const items = claims.length ? claims : [{claim:'Read this source passage', sourceQuote:unit.text,
       sourceRange:{start:unit.start, end:unit.end}, reviewState:'exact-source-only'}];
     for (const item of items) {
+      if (!item.sourceQuote.trim()) continue;
       const classified = analyzePolicy(item.sourceQuote).points[0] || {topic:'other', priority:'standard'};
       points.push({
         id:`point-${String(points.length + 1).padStart(3, '0')}`,
