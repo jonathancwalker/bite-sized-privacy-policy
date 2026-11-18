@@ -9,7 +9,7 @@ import { POLICY_CATALOG } from '../tooling/catalog.mjs';
 import { APP_ASSETS } from './assets.mjs';
 
 const root = fileURLToPath(new URL('../app/', import.meta.url));
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.ttf': 'font/ttf' };
 const assets = new Set(APP_ASSETS);
 const MAX_TEXT_CHARS = 80_000;
 const MAX_FILE_BYTES = 12 * 1024 * 1024;

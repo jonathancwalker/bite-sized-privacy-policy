@@ -11,6 +11,20 @@ async function withServer(options, run) {
 }
 const post = (base, route, body) => fetch(base + route, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body) });
 
+test('the bundled Instrument Sans font loads as a font without a model key', async () => {
+  await withServer({apiKey:null}, async base => {
+    const font = await fetch(base + '/fonts/instrument-sans.ttf');
+    assert.equal(font.status, 200);
+    assert.equal(font.headers.get('content-type'), 'font/ttf');
+    const bytes = new Uint8Array(await font.arrayBuffer());
+    assert.deepEqual([...bytes.slice(0, 4)], [0, 1, 0, 0]);
+    assert.ok(bytes.length > 1000);
+    const license = await fetch(base + '/fonts/OFL.txt');
+    assert.equal(license.status, 200);
+    assert.match(await license.text(), /SIL OPEN FONT LICENSE/);
+  });
+});
+
 test('catalog and local page are served without a key', async () => {
   await withServer({ apiKey:null }, async base => {
     const catalog = await fetch(base + '/api/catalog');
