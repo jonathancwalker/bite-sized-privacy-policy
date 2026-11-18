@@ -2,6 +2,8 @@
 
 Plainer helps people understand privacy policies through short, readable claims linked to the original wording. The current product focus is privacy policies; avoid expanding to terms of service or other contracts unless the user asks. The user is actively shaping the experience through sketches and iteration, so treat the current UI as a prototype rather than a final design.
 
+Read [`FEATURE_LIST.md`](FEATURE_LIST.md) for the shared feature inventory, implementation status, and open work. Update it when substantive feature work changes the product.
+
 ## Product and design
 
 - Make the flow simple and constrained: a clear hierarchy, generous but intentional spacing, minimal copy, and progressive disclosure. Avoid decorative marketing blurbs and generic AI-looking visual treatments.

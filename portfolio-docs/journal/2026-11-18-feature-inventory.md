@@ -1,0 +1,3 @@
+# Shared feature inventory — November 18, 2026
+
+The user requested one Markdown list of features already present and features they want to add, so future agents can maintain a coherent backlog. Codex created [`FEATURE_LIST.md`](../../FEATURE_LIST.md) at the project root and linked it from the README and agent guidance. It distinguishes local implementation, partial work, planned ideas, and older hosted behavior. Earlier clarification/dealbreaker ideas are recorded as paths to revisit rather than described as current card actions. The list is an inventory assembled from the current conversation, project guidance, implementation, and existing decision records; it is not a new user approval of every older proposal.

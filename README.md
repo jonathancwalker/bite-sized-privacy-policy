@@ -2,6 +2,8 @@
 
 A concept for helping people understand a privacy policy or contract, record their reactions to individual provisions, and leave with a decision report grounded in the original document.
 
+See [FEATURE_LIST.md](FEATURE_LIST.md) for the current feature inventory and backlog. It distinguishes the local app, the older hosted prototype, partial work, and proposals.
+
 ## Current state
 
 The [private hosted prototype](https://bite-sized-privacy-jcw.foggypanda2049.chatgpt.site) is the November 12 source-first version. A newer **local flow** now connects a redesigned entry experience, policy import, extracted-text preview, server-side LLM claim generation, browser reactions, and the report. The local flow has not yet been deployed to the hosted Site.

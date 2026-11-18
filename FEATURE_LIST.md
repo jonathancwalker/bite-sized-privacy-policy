@@ -1,0 +1,69 @@
+# Plainer feature list
+
+This is the shared product backlog and current-state inventory for agents. Update it when a feature is added, changed, rejected, or shipped. **Local** means the working Node app on this branch; the hosted static prototype is an older version and has not received these features. A checked item describes implementation, not a usability or legal-accuracy finding.
+
+Status: **Local** = implemented in the local app; **Partial** = present but needs the listed work; **Planned** = user direction or earlier project proposal, not implemented; **Explore** = an idea to validate before committing to it. Keep product decisions from the user distinct from implementation suggestions.
+
+## Entry and policy intake
+
+| Feature | Status | What exists / next step |
+| --- | --- | --- |
+| Simple, quiet homepage with three recognizable policy choices | Local | Instagram/Facebook (Meta), TikTok US, and YouTube/Google are shown. The design remains a prototype. |
+| Progressive reading-depth choice | Local | Choose a featured policy or expand “Review my own policy,” then choose Quick overview or Detailed review before proceeding. Own-policy input shows the chosen depth and a Change action. |
+| Own-policy intake by upload, paste, or URL | Local | Upload accepts TXT, RTF, DOCX, and text-based PDF; paste and public HTTPS URL are supported. Scanned PDFs need OCR, which is not implemented. |
+| Source preview before analysis | Local | Shows extracted title, source, warnings, and expandable text so the reader can check the input. |
+| Curated official-policy catalog | Local tooling | 15 pointers, including regional variants. A pointer does not guarantee automated fetching; sites can block it. |
+| More reliable policy extraction | Partial | HTML and supported files are handled with warnings. Improve blocked-site handling, regional/version detection, tables, and scanned PDFs as specific cases warrant. |
+
+## Analysis and reading depth
+
+| Feature | Status | What exists / next step |
+| --- | --- | --- |
+| LLM-assisted, source-linked claims | Local | The server proposes claims with exact source spans and optional neighboring context. Exact quote validation does **not** verify a paraphrase's meaning. |
+| Quick overview (user mode) | Local, refine | Selects a handful of broad, plain-language themes for an operating understanding. It is intentionally selective; the UI states how many source units were not summarized and keeps the full policy available. Review outputs for repetition, readability, and missing major themes. |
+| Detailed review (lawyer mode) | Local, refine | Produces more granular, source-linked claims and exact-source fallback passages. It is not legal review. Card count can still be very high. |
+| Faster live decomposition | Local | Bounded model groups run concurrently, up to four requests. Measure and improve wait time on representative own-policy imports if needed. |
+| Saved featured analyses | Local | Dated source text and both reading modes are stored for the three homepage policies. Opening them avoids a new import/model call. Refresh deliberately when source policies change; show the original fetch date. This is saved content, not a runtime cache. |
+| Refresh commands | Local | `npm run save-featured` refetches source and both modes; `npm run refresh-featured-overviews` updates only overviews from the saved source. Both require a server-side key. |
+| Semantic faithfulness and coverage checks | Partial | Source ranges, missing units, and some qualifier risks are tracked. Human review of real policies is still needed for meaning, conditions, exceptions, regional scope, and whether the selected overview themes are useful. |
+| Related provisions and cross-clause context | Planned | Show when a definition, exception, or other clause changes the meaning of a claim; preserve those links in the report. Source context exists in the pipeline, but this reader experience is not built. |
+
+## Claim review
+
+| Feature | Status | What exists / next step |
+| --- | --- | --- |
+| One focused claim card at a time | Local | The card shows the claim, topic, progress, and four actions: Accept, Reject, Skip, Reword. Original wording is behind Check source rather than on the card. |
+| Personal reactions | Local | Accept/Reject record a reaction to the **claim**, not acceptance or rejection of a policy. Skip leaves the claim unfinished in the report. Revisit can change a reaction. |
+| AI rewording | Local, refine | Reword requests a shorter alternate wording from the server and marks the card as AI-reworded. The new wording remains unverified; compare it with the original. Consider whether people need examples or a question path after trying this interaction. |
+| Ambient card cues | Local, refine | Priority topics, Quick overview, and AI rewordings receive subtle card treatment. Check with readers whether these cues are noticeable and understandable without implying a risk score. |
+| Progress and section checkpoints | Local | Progress tracks handled cards; topic checkpoints and resume flow exist. Review whether checkpoint copy still fits the new Accept/Reject/Skip actions. |
+| Explicit topic preferences | Partial | Readers can choose topics to see first; selected topics affect order and card highlighting. Topic assignment still uses text matching and should not be interpreted as a risk rating. Preferences do not hide other content. |
+| Clarification questions, notes, and potential dealbreakers | Partial / revisit | Older saved responses and report fields support these, but the new minimal card does not offer an entry path. Earlier proposals included a saved question, optional concern note, and dealbreaker flag. Decide how to add them without crowding the card. |
+| Pause, resume, and browser persistence | Local | One review is saved in local storage at a time. Replacing or clearing it is explicit; private browsing or disabled storage can prevent recovery. |
+
+## Report and trust
+
+| Feature | Status | What exists / next step |
+| --- | --- | --- |
+| Personal report | Local, refine | Groups accepted, rejected, skipped/unreviewed, and older clarification responses; allows revisiting claims and adding a reflection. Align remaining legacy wording with the new card actions. |
+| Export and print | Local | Download a text report with claims, source passages, and full policy; browser print can save a PDF. |
+| Source access and provenance | Local, refine | A claim can open its location in the extracted policy; saved featured analyses display a fetch date. Make the source viewer easier to scan without turning the main card into a source panel. |
+| Honest limits | Local | AI claims are labeled unverified; Quick overview coverage is selective; full policy is available. Do not label output legally verified or silently treat old snapshots as current. |
+| Reader comprehension and usability study | Planned | Test whether the overview gives a working understanding, whether cards feel manageable, and whether people understand Accept/Reject, source cues, and skipped coverage. No such study has been run. |
+
+## Product boundaries and delivery
+
+- Focus on **privacy policies**. Terms of service and other contracts are outside the current scope unless the user asks.
+- The reader makes the judgment. Do not imply that reactions change, negotiate, or legally accept the policy.
+- Keep the interface constrained and progressively disclosed; avoid decorative marketing copy and generic AI styling. Treat current visuals and copy as iterating.
+- The local API needs `OPENAI_API_KEY` for new analyses and rewording. The hosted static prototype is older; publishing the live own-policy path requires a server-backed deployment and secret handling.
+- Avoid committing credentials or private policy text. Preserve source URL, fetch date, version/scope when known, and extraction warnings.
+
+## How agents should use this list
+
+1. Check the **status** and source code before treating an item as finished; this file is an inventory, not proof of behavior.
+2. For a new feature, add its intended reader outcome and acceptance criteria here, then update its status and limitations after implementation.
+3. Do not silently promote an **Explore** item or older proposal to an accepted requirement. Confirm direction through user feedback or current task context.
+4. Record substantive decisions and test evidence in `portfolio-docs/`; keep this list concise and actionable.
+
+Implementation map: [`app/app.js`](app/app.js) and [`app/styles.css`](app/styles.css) for the local UI, [`scripts/serve.mjs`](scripts/serve.mjs) for the API, [`tooling/README.md`](tooling/README.md) for intake/decomposition, and [`portfolio-docs/decisions.md`](portfolio-docs/decisions.md) for the decision history.
