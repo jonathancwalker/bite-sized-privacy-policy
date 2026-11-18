@@ -277,5 +277,14 @@
     "usage": "Ready as labeled visual concept evidence; not selected or deployed",
     "provenance": "Codex in-app browser capture of local visual gallery, 2026-11-17",
     "alt": "Plain Talk visual study at a 390-pixel width without horizontal overflow."
+  },
+  {
+    "title": "Personal PDF report sample",
+    "file": "assets/exports/2026-11-18-report-pdf-sample.jpg",
+    "kind": "Generated PDF page rendering",
+    "caption": "First page of a three-page sample with synthetic reactions to the saved Instagram overview.",
+    "usage": "Export-layout evidence only; not a browser screenshot or real reader response.",
+    "provenance": "Actual report-pdf.js output rendered with Poppler and inspected on 2026-11-18.",
+    "alt": "Graph-paper margins surround a personal report with priorities, five reaction totals, and a concerned claim with source wording."
   }
 ]

@@ -44,3 +44,4 @@ Keep new work current at meaningful checkpoints. Add evidence before replacing u
 - [Functional reliability cleanup](journal/2026-11-18-functional-cleanup.md)
 - [Graph-paper foundation](journal/2026-11-18-graph-paper-foundation.md)
 - [Reaction-focused UX and report map](journal/2026-11-18-reaction-focused-ux.md)
+- [Priority modal, response history, and PDF reports](journal/2026-11-18-priorities-and-pdf-reports.md)

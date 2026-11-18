@@ -115,3 +115,7 @@ Provenance: Codex, November 17, 2026, based on the implemented tooling. Usage: r
 Three supplied screenshots showed the graph-paper application before the interaction revision: small homepage marks with a depth gate, text-link review tools and uncontained topic progress, and a dispersed report with Undo and no reaction map. These images were available as visual references, but their temporary source files were unavailable when archival copying was attempted. No local before-state copies or revised-app screenshots are recorded for this pass.
 
 The supplied Byline reference contributed the idea of a colored block distribution only; its subject matter and authorship metrics were not transferred into the product.
+
+## Personal PDF report — November 18, 2026
+
+[Sample first page](exports/2026-11-18-report-pdf-sample.jpg) is a Poppler rendering of the actual PDF generator output. It uses the saved Instagram overview and explicitly labeled synthetic responses for layout review. All three pages were inspected; this asset shows the priorities, totals, and first concerned claim. It verifies the generated document’s appearance only, not the browser interface or a real reader’s reactions. See the [verification journal](../journal/2026-11-18-priorities-and-pdf-reports.md).
