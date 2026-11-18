@@ -1,6 +1,6 @@
 # Plainer feature list
 
-This is the shared product backlog and current-state inventory for agents. Update it when a feature is added, changed, rejected, or shipped. **Local** means the working Node app on this branch; the hosted static prototype is an older version and has not received these features. A checked item describes implementation, not a usability or legal-accuracy finding.
+This is the shared product backlog and current-state inventory for agents. Update it when a feature is added, changed, rejected, or shipped. **Local** describes implemented code; the public Vercel app now serves the same interface and API at [plainer-gamma.vercel.app](https://plainer-gamma.vercel.app). Verify the deployment before treating later local edits as live. A checked item describes implementation, not a usability or legal-accuracy finding.
 
 Status: **Local** = implemented in the local app; **Partial** = present but needs the listed work; **Planned** = user direction or earlier project proposal, not implemented; **Explore** = an idea to validate before committing to it. Keep product decisions from the user distinct from implementation suggestions.
 
@@ -11,9 +11,9 @@ Status: **Local** = implemented in the local app; **Partial** = present but need
 | Simple, quiet homepage with three recognizable policy choices | Local | Instagram/Facebook (Meta), TikTok US, and YouTube/Google are shown. The design remains a prototype. |
 | Shared graph-paper visual foundation | Local, visual QA pending | Single-column homepage; light blue-gray graph paper across home, review, and report; locally bundled Instrument Sans and white bordered cards across the flow. Review has a contained progress card; the report uses its own reaction summary and claim map. See `DESIGN.md`. |
 | Defaulted reading-depth toggle | Local | Quick overview is selected on first visit. A sliding pill switches to Lawyer mode, with a changing explanation underneath. Depth does not block source selection or own-policy input; a compact saved-review card sits below policy entry with its platform, reviewed count, and resume/report action. Changing depth preserves drafted text and the selected file. |
-| Own-policy intake by upload, paste, or URL | Local | Upload accepts TXT, RTF, DOCX, and text-based PDF; paste and public HTTPS URL are supported. Scanned PDFs need OCR, which is not implemented. |
+| Own-policy intake by upload, paste, or URL | Live | Upload accepts TXT, RTF, DOCX, and text-based PDF up to 3 MiB; paste and public HTTPS URL are supported. Scanned PDFs need OCR, which is not implemented. |
 | Source preview before analysis | Local | Shows extracted title, source, warnings, and expandable text so the reader can check the input. |
-| Public URL and local API safeguards | Local | DNS answers are checked and pinned per destination; downloads have size/time limits. The local API checks Host and Origin. Public deployment still needs its own authentication and request limits. |
+| Public URL and API safeguards | Live | DNS answers are checked and pinned per destination; downloads have size/time limits. Local Host/Origin checks remain; hosted requests require a configured HTTPS host and matching browser Origin. Vercel's firewall allows 30 API POSTs per five minutes per IP. This is rate limiting, not user authentication or a global model-spending cap. |
 | Curated official-policy catalog | Local tooling | 15 pointers, including regional variants. A pointer does not guarantee automated fetching; sites can block it. |
 | More reliable policy extraction | Partial | HTML and supported files are handled with warnings. Improve blocked-site handling, regional/version detection, tables, and scanned PDFs as specific cases warrant. |
 
@@ -61,10 +61,11 @@ Status: **Local** = implemented in the local app; **Partial** = present but need
 
 ## Product boundaries and delivery
 
+- **Public Vercel deployment — Live:** static interface and four Node.js API functions, production-only model secret, four-minute analysis deadline, and browser-safe PDF bundles. Public HTTP checks passed for all six saved analyses, paste/PDF/URL import, a small live overview, and rephrasing. Hosted visual interactions and load were not tested. See `DEPLOYMENT.md`.
 - Focus on **privacy policies**. Terms of service and other contracts are outside the current scope unless the user asks.
 - The reader makes the judgment. Do not imply that reactions change, negotiate, or legally accept the policy.
 - Keep the interface constrained and progressively disclosed; avoid decorative marketing copy and generic AI styling. Treat current visuals and copy as iterating.
-- The local API needs `OPENAI_API_KEY` for new analyses and rewording. The hosted static prototype is older; publishing the live own-policy path requires a server-backed deployment and secret handling.
+- New analyses and rewording need a server-side `OPENAI_API_KEY`. Vercel Production has a secret; previews can still use saved policies and imports without it. Changes to production secrets require a new deployment.
 - Avoid committing credentials or private policy text. Preserve source URL, fetch date, version/scope when known, and extraction warnings.
 
 ## How agents should use this list

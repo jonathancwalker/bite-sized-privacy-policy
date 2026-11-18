@@ -2,7 +2,7 @@
 
 Help people understand long policies through source-linked points, progressive reactions, explicit preferences, and a personal decision report.
 
-**Current stage:** Private source-first hosted prototype plus a connected local browser flow with redesigned entry screens, source preview, model draft claims, reactions, and report export. The local API is not hosted. No user study.
+**Current stage:** Public Vercel app with source preview, model draft claims, reactions, and report export. Public API smoke checks passed; hosted browser usability and a reader study remain untested.
 
 **Role and collaboration:** The user originated the concept, agreed to replace approval language with comfort/clarification language, proposed checkpoints and preference onboarding, and planned to sketch. Codex raised risks and recorded the evolving flow.
 
@@ -47,3 +47,4 @@ Keep new work current at meaningful checkpoints. Add evidence before replacing u
 - [Priority modal, response history, and PDF reports](journal/2026-11-18-priorities-and-pdf-reports.md)
 - [Single-column entry and browser PDF packaging](journal/2026-11-18-single-column-and-pdf-packaging.md)
 - [Attention-focused PDF and explicit unreviewed coverage](journal/2026-11-18-attention-only-pdf.md)
+- [Public Vercel deployment](journal/2026-11-18-vercel-deployment.md)

@@ -21,9 +21,10 @@ function outputText(body) {
   if (typeof body.output_text === 'string') return body.output_text;
   return body.output?.flatMap(item=>item.content || []).filter(part=>part.type==='output_text').map(part=>part.text).join('') || '';
 }
-export async function callOpenAI(payload, { apiKey, model = DEFAULT_MODEL, mode = 'lawyer', fetchImpl = fetch } = {}) {
+export async function callOpenAI(payload, { apiKey, model = DEFAULT_MODEL, mode = 'lawyer', fetchImpl = fetch, signal } = {}) {
   if (!apiKey) throw new Error('OPENAI_API_KEY is required for live LLM decomposition.');
-  const response = await fetchImpl('https://api.openai.com/v1/responses', { method:'POST',signal:AbortSignal.timeout(90_000), headers:{authorization:`Bearer ${apiKey}`,'content-type':'application/json'}, body:JSON.stringify({model,store:false,instructions:mode === 'user' ? USER_INSTRUCTIONS : INSTRUCTIONS,input:JSON.stringify(payload),text:{format:{type:'json_schema',name:'privacy_claims',strict:true,schema:CLAIM_SCHEMA}}}) });
+  const deadline = AbortSignal.timeout(90_000);
+  const response = await fetchImpl('https://api.openai.com/v1/responses', { method:'POST',signal:signal ? AbortSignal.any([signal,deadline]) : deadline, headers:{authorization:`Bearer ${apiKey}`,'content-type':'application/json'}, body:JSON.stringify({model,store:false,instructions:mode === 'user' ? USER_INSTRUCTIONS : INSTRUCTIONS,input:JSON.stringify(payload),text:{format:{type:'json_schema',name:'privacy_claims',strict:true,schema:CLAIM_SCHEMA}}}) });
   if (!response.ok) throw new Error(`Model request failed (HTTP ${response.status}).`);
   const body = await response.json();
   if (body.status === 'incomplete' || body.error) throw new Error('Model response was incomplete or errored.');
@@ -65,15 +66,17 @@ export function validateNonClaimUnits(base, proposed, claims = [], allowedUnitId
   return {accepted,rejected};
 }
 
-export async function intelligentDecompose(input, { model = DEFAULT_MODEL, mode = 'lawyer', concurrency = 4, apiKey = process.env.OPENAI_API_KEY, propose = null, fetchImpl = fetch } = {}) {
+export async function intelligentDecompose(input, { model = DEFAULT_MODEL, mode = 'lawyer', concurrency = 4, apiKey = process.env.OPENAI_API_KEY, propose = null, fetchImpl = fetch, signal } = {}) {
   normalizeReadingMode(mode);
+  signal?.throwIfAborted();
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new TypeError('Concurrency must be an integer from 1 to 4.');
   const base = decompose(input);
   const groups = chunks(base.units, mode === 'user' ? 14000 : 9000);
-  const infer = propose || ((payload)=>callOpenAI(payload,{apiKey,model,mode,fetchImpl}));
+  const infer = propose || ((payload)=>callOpenAI(payload,{apiKey,model,mode,fetchImpl,signal}));
   const results = new Array(groups.length);
   let next = 0;
   async function worker() { while (next < groups.length) {
+    signal?.throwIfAborted();
     const index = next++;
     const group = groups[index];
     const payload = {documentTitle:base.document.title,units:group.map(unit=>({id:unit.id,sectionPath:unit.sectionPath,text:unit.text,previousId:unit.previousId||'',previous:base.units.find(x=>x.id===unit.previousId)?.text.slice(-500)||'',nextId:unit.nextId||'',next:base.units.find(x=>x.id===unit.nextId)?.text.slice(0,500)||''}))};
@@ -86,6 +89,7 @@ export async function intelligentDecompose(input, { model = DEFAULT_MODEL, mode 
     } catch (error) { results[index] = {claims:[],nonClaimUnits:[],rejected:[],failures:[{unitIds:group.map(x=>x.id),message:error.message}]}; }
   }}
   await Promise.all(Array.from({length:Math.min(Math.max(1,concurrency),groups.length)},()=>worker()));
+  signal?.throwIfAborted();
   const claims = results.flatMap(r=>r.claims), nonClaimUnits = results.flatMap(r=>r.nonClaimUnits), rejected = results.flatMap(r=>r.rejected), failures = results.flatMap(r=>r.failures);
   const claimed = new Set([...claims.map(c=>c.unitId),...nonClaimUnits.map(item=>item.unitId)]);
   const unclaimedUnitIds=base.units.filter(u=>!claimed.has(u.id)).map(u=>u.id);

@@ -1,0 +1,9 @@
+.env*
+.git
+.github
+portfolio-docs
+output
+tmp
+uploads
+**/*.test.mjs
+app/dist

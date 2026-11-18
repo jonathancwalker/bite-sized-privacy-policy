@@ -1,5 +1,6 @@
 import { analyzePolicy, TOPICS } from './engine.js';
 import { MAX_POLICY_CHARS, preparedAnalysis, restoreReview, reviewDepth, switchReviewDepth } from './review-state.js';
+import { MAX_UPLOAD_BYTES, UPLOAD_SIZE_MESSAGE } from './limits.js';
 
 const root = document.querySelector('#app');
 const KEY = 'bite-sized-review-v1';
@@ -261,7 +262,8 @@ function reportInfo(){
 }
 async function apiPost(route, payload){
   const response=await fetch(route,{signal:AbortSignal.timeout(300_000),method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
-  let body;try{body=await response.json();}catch{throw new Error('The local preparation service did not return a readable response.');}
+  const fallback=response.status===429?'Too many requests. Please wait a few minutes and try again.':response.status===413?UPLOAD_SIZE_MESSAGE:response.status===504?'Analysis took too long. Try Quick overview or a shorter policy.':'The preparation service is unavailable. Please try again shortly.';
+  let body;try{body=await response.json();}catch{throw new Error(fallback);}
   if(!response.ok)throw new Error(body.error||`Request failed (HTTP ${response.status}).`);return body;
 }
 async function savedFeatured(id){
@@ -310,7 +312,7 @@ async function rewordCurrent(){
 }
 function exactPassageFallback(){if(!pending)return;const fallback=analyzePolicy(pending.text);fallback.mode='exact-source-only';replaceWithPrepared(fallback);}
 async function importFile(file){
-  if(!file)return;const token=flowToken;if(!/\.(pdf|docx|txt|rtf)$/i.test(file.name))throw new Error('Choose a PDF, DOCX, TXT, or RTF file.');if(file.size>12*1024*1024)throw new Error('Use a file under 12 MB.');
+  if(!file)return;const token=flowToken;if(!/\.(pdf|docx|txt|rtf)$/i.test(file.name))throw new Error('Choose a PDF, DOCX, TXT, or RTF file.');if(file.size>MAX_UPLOAD_BYTES)throw new Error(UPLOAD_SIZE_MESSAGE);
   const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
   if(token!==flowToken)return;
   await importPolicy({kind:'file',filename:file.name,base64:btoa(binary)});
@@ -318,7 +320,7 @@ async function importFile(file){
 function selectFile(file){
   selectedFile=null;importError='';
   if(file){if(!/\.(pdf|docx|txt|rtf)$/i.test(file.name))importError='Choose a PDF, DOCX, TXT, or RTF file.';
-    else if(file.size>12*1024*1024)importError='Use a file under 12 MB.';
+    else if(file.size>MAX_UPLOAD_BYTES)importError=UPLOAD_SIZE_MESSAGE;
     else selectedFile=file;}
   render();root.querySelector(selectedFile?'[data-action="import-file"]':'[data-action="choose-file"]')?.focus();
 }

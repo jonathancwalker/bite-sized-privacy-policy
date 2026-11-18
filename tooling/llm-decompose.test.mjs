@@ -92,3 +92,26 @@ test('model requests have a deadline and do not store policy text', async () => 
     return new Response(JSON.stringify({output_text:'{"claims":[],"nonClaimUnits":[]}'}));
   }});
 });
+
+test('a cancelled hosted analysis stops before starting further model groups', async () => {
+  const controller = new AbortController();
+  const longText = Array.from({length:200},(_,i)=>`Section ${i+1}\n\nWe collect account detail ${i+1} when you register for this feature.\n\n`).join('');
+  let calls = 0;
+  await assert.rejects(intelligentDecompose({text:longText}, {
+    signal:controller.signal, concurrency:1,
+    propose:async () => {calls++; controller.abort(new Error('Analysis deadline reached')); return {claims:[],nonClaimUnits:[]};}
+  }), /deadline/);
+  assert.equal(calls, 1);
+});
+
+test('the hosted analysis deadline reaches an in-flight OpenAI request', async () => {
+  const controller = new AbortController();
+  await assert.rejects(callOpenAI({units:[]}, {
+    apiKey:'test-key', signal:controller.signal,
+    fetchImpl:async (_url, options) => {
+      controller.abort(new Error('Analysis deadline reached'));
+      options.signal.throwIfAborted();
+      return new Response(JSON.stringify({output_text:'{"claims":[],"nonClaimUnits":[]}'}));
+    }
+  }), /deadline/);
+});
