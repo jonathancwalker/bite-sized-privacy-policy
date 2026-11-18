@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import vm from 'node:vm';
 import * as engine from './app/engine.js';
-import { preparedAnalysis, restoreReview } from './app/review-state.js';
+import * as reviewState from './app/review-state.js';
+const { preparedAnalysis, restoreReview } = reviewState;
 import { decompose } from './tooling/decompose.mjs';
 
 // Exercise the real client state/rendering code without pretending this is browser layout QA.
@@ -12,9 +12,8 @@ async function client(saved = null) {
   const events = new Map();
   const root = {innerHTML:'', addEventListener(){}, querySelector(){return null;}, querySelectorAll(){return [];}};
   const storage = new Map(saved == null ? [] : [['bite-sized-review-v1', JSON.stringify(saved)]]);
-  const helpers = existsSync(new URL('./app/review-state.js', import.meta.url)) ? await import('./app/review-state.js') : {};
   const context = vm.createContext({
-    ...engine, ...helpers,
+    ...engine, ...reviewState,
     document:{querySelector:selector => selector === '#app' ? root : null},
     localStorage:{getItem:key => storage.get(key) ?? null, setItem:(key,value) => storage.set(key,value)},
     window:{scrollTo(){},addEventListener:(name, handler) => events.set(name, handler)}, console, setTimeout, clearTimeout, AbortSignal

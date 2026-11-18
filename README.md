@@ -1,111 +1,80 @@
-# Bite-sized Privacy Policy
+# Plainer
 
-A concept for helping people understand a privacy policy or contract, record their reactions to individual provisions, and leave with a decision report grounded in the original document.
+Plainer helps people read privacy policies through short claims linked to exact source wording. Readers choose a policy and reading depth, review one claim at a time, record personal reactions, and export a report that keeps unfinished material visible.
 
-See [FEATURE_LIST.md](FEATURE_LIST.md) for the current feature inventory and backlog. It distinguishes the local app, the older hosted prototype, partial work, and proposals.
+## Run locally
 
-## Current state
-
-The [private hosted prototype](https://bite-sized-privacy-jcw.foggypanda2049.chatgpt.site) is the November 12 source-first version. A newer **local flow** now connects a redesigned entry experience, policy import, extracted-text preview, server-side LLM claim generation, browser reactions, and the report. The local flow has not yet been deployed to the hosted Site.
-
-The entry screen offers three familiar policies or “Use my own policy.” Featured choices open saved user overviews directly. The own-policy path opens Upload, Paste, and URL tabs; file upload accepts PDF, DOCX, TXT, or RTF through a chooser or drop zone. After checking the extracted text and choosing a reading mode, the flow continues to a topic map, source-linked claims, reactions, checkpoints, and a personal report. Reviews autosave in that browser, including the current checkpoint. The fictional sample has 11 exact-passage points in the hosted version.
-
-### Homepage visual studies
-
-The local [concept gallery](app/concepts.html) explores four **visual-only** homepage directions: Open File (clarity), Spotlight (agency), Margin Notes (context), and Plain Talk (approachability). Each has a different composition, type treatment, and palette, with a mission rationale and a tradeoff to consider. With the local server running, open `/concepts.html` (for example, `http://localhost:4175/concepts.html`). The gallery is separate from the working intake; no direction has been selected or applied to the product yet.
-
-**Hosted prototype extraction limit:** the published first version organizes exact passages using keyword-based topics. The local flow generates plain-language model claims and links them to exact quotes, but those paraphrases have not been legally verified. Topic assignment and attention cues remain imperfect navigation aids.
-
-### Run locally
-
-Requires Node.js 22+:
+Requires Node.js 22 or newer.
 
 ```sh
+npm ci
 npm run dev
 # Open http://127.0.0.1:4173
-npm test
-npm run build
 ```
 
-`app/` is the dedicated Sites source checkout. `scripts/build.mjs` copies the runtime files and saved featured policies into `app/dist/`; the hosting manifest is `app/.openai/hosting.json`. The current hosted Site is static and does not run the local Node API. Root-level scripts and tests stay in this project.
+The saved Instagram/Meta, TikTok US, and YouTube/Google reviews work without an API key. New analyses and rewording require `OPENAI_API_KEY` in the server environment. To load a private local environment file, use `node --env-file=/absolute/path/to/.env scripts/serve.mjs`. Never commit credentials. Set `PORT=4174` if the default port is occupied.
 
-For the connected local flow, supply `OPENAI_API_KEY` to the process environment and run `npm run dev`. The authorized ad-detection `.env` can be passed to Node locally with `node --env-file=/absolute/path/to/ad-detection/.env scripts/serve.mjs`. The key stays on the server and must not be copied into browser code or this repository. If port 4173 is already in use, set `PORT=4174` before the command.
+The Node server is a local development server. Its API accepts requests addressed to localhost or loopback, with a matching browser origin. Public hosting needs a separate deployment design with authentication, request limits, and server-side secrets.
 
-### Data and reports
+## Current experience
 
-In the new local flow, policy text goes to the local server and OpenAI for claim generation. Reactions and notes remain in this origin's browser local storage. One review is saved at a time; switching documents prompts before replacing it. “Clear review” deletes the stored review. Private/incognito modes or browser storage restrictions may prevent recovery; the app shows a warning if storage is unavailable. The text report contains every reviewed claim or exact passage and the full original policy; browser printing provides a PDF option. Local and hosted reviews are separate because they use different origins.
+1. Choose a featured policy or expand **Review my own policy**.
+2. Choose **Quick overview** or **Detailed review** before proceeding.
+3. For an own policy, upload TXT/RTF/DOCX/text-PDF, paste text, or enter a public HTTPS URL; check the extracted text before analysis.
+4. Choose topics to see first, then **Accept**, **Reject**, **Skip**, or **Reword** each claim. Original wording stays available through **Check source**.
+5. Resume the review later or export a personal report. Reactions do not accept, amend, or negotiate a policy.
 
-Input limit: 80,000 characters. The sample is fictional, and this is a reading aid rather than legal advice. No user comprehension study has been run.
+Quick overview selects a few themes and explicitly leaves some source material unsummarized. Detailed review produces more granular cards, including exact-source fallback passages when needed. Neither mode implies legal review. The current saved overviews have 8 Meta, 4 TikTok US, and 10 Google cards; detailed reviews have 174, 121, and 291 respectively.
 
-### Verification
+The [feature inventory](FEATURE_LIST.md) is the current backlog. [Portfolio decisions](portfolio-docs/decisions.md) and [experiments](portfolio-docs/experiments.md) retain historical iterations; earlier screenshots and descriptions may differ from current code. The separate `/concepts.html` gallery contains three visual-only studies: Clear, Grounded, and Signal.
 
-Earlier automated and browser checks are recorded in [verification evidence](portfolio-docs/experiments.md#e02--working-prototype-verification). For the redesigned local entry flow, browser checks covered a featured-policy import, all three own-policy tabs, native file chooser and selected-file confirmation, paste and URL imports, source preview, AI claim generation, a saved reaction, and the partial report. The 390-pixel layout was inspected. See [entry UX verification](portfolio-docs/experiments.md#e05--focused-entry-flow).
+## Data and source integrity
 
-Historical baseline: the project was concept-only at the November 10 handoff.
+- One review is saved in the browser's local storage. Reactions and notes are not sent to the policy provider. Clearing or replacing a review is explicit; restricted storage may prevent recovery.
+- Own-policy text goes to the local server and OpenAI for claim generation. Rewording sends the selected claim and its source/context. Model requests use `store:false`; this is not a guarantee of zero provider retention.
+- Intake records provenance and extraction warnings. The app accepts up to 80,000 characters or a 12 MiB file. URL downloads are limited to 3 MB and 15 seconds; every destination is checked, and production HTTPS connections use the validated public DNS addresses.
+- Source decomposition preserves exact text and offsets. Model claims must cite their assigned source units; optional context must cite a neighboring unit. Malformed entries are rejected, and failures keep the source available.
+- Exact quote matching proves the citation exists. It does **not** prove that a paraphrase preserves meaning. Claim quality, broad coverage, and cross-clause dependencies still need evaluation.
+- Saved reviews are validated before recovery. Invalid saved data produces a recovery notice without clearing it. Exports include the source URL, fetch date and scope when recorded, claims, reactions, and the complete original text. Printing expands unfinished claims and source disclosures.
 
+## Saved featured policies
 
-## Intake and intelligent decomposition tooling (November 17, 2026)
+`app/data/featured/` contains dated source text and both analyses for the three homepage policies. They are prepared files, not a runtime cache. Opening a featured review or switching its mode does not fetch the original policy or call a model.
 
-A separate [tooling pipeline](tooling/README.md) now supports a curated catalog of 15 official policy entry points, arbitrary public HTTPS policy pages, pasted text on stdin, and TXT/RTF/DOCX/text-PDF files. Regional variants are explicit. Every extraction records its source and warnings. One public Anthropic page was fetched successfully (40,685 extracted characters, 31 sections, 76 units, complete source coverage); OpenAI’s public page returned HTTP 403 to the command-line fetcher, so catalog URLs are not a guarantee of automated retrieval.
+```sh
+npm run save-featured                 # Refetch and regenerate both modes
+npm run save-featured -- meta         # Refresh one policy
+npm run refresh-featured-overviews    # Regenerate only overviews from saved text
+```
 
-The new decomposition layer preserves exact source offsets and section paths, aims for units under 120 words, and gives an LLM bounded source plus neighboring context. Structured outputs propose plain-language claims with source and optional context quotes. A validator rejects quotes outside their cited source and marks accepted paraphrases unverified. A six-case synthetic benchmark and a public-policy smoke test have run with a user-authorized API key supplied through the process environment. **These tools are not yet connected to the deployed review interface.** The user is still considering that experience.
+These commands require a server-side key. A failed refresh preserves the previous file. Display the original source fetch date; a regenerated overview does not make its source current.
 
-Run `npm run policy -- --list` to see choices, `npm run policy -- --file /path/to/policy.pdf` for file intake, or `npm run benchmark` for the local baseline. See the tooling README for URL, paste, and live LLM commands.
+## Project map
 
-## Product intent
+| Location | Responsibility |
+| --- | --- |
+| `app/app.js` | Screen rendering, navigation, reactions, report export |
+| `app/review-state.js` | Source validation, card preparation, saved-review recovery |
+| `app/engine.js` | Deterministic exact-passage fallback and topic classification |
+| `scripts/serve.mjs` | Local static server and import/decompose/reword API |
+| `scripts/assets.mjs` | Shared asset manifest for serving and builds |
+| `tooling/` | Intake, extraction, source decomposition, model validation and audits |
+| `portfolio-docs/` | Decisions, historical evidence, experiments and screenshots |
 
-- Break long documents into understandable points, preserving conditions, exceptions, and links to exact source wording.
-- Let people record comfort, concerns, and questions for each point.
-- Summarize concerns, unanswered questions, acceptable terms, and unreviewed material.
-- Explore explicit preferences to highlight relevant terms, while keeping the person's judgment in control.
+See [tooling commands and limitations](tooling/README.md) for the policy catalog, CLI and benchmark.
 
-## Emerging interaction model
+## Checks and build
 
-The review should feel like a guided decision, not a quiz and not a stack of identical cards. People choose how far to go on each point, with the next useful action revealed progressively:
+```sh
+npm test
+npm run build
+npm run benchmark  # Six deterministic synthetic cases; no model requests
+```
 
-1. **Comfortable** — record that this point seems acceptable and continue.
-2. **Need clarification** — capture a question, or ask for a simpler explanation or an example.
-3. **Not comfortable** — mark the point as a concern, then optionally flag it as a potential dealbreaker.
+The test suite covers exact source recovery, claim validation, intake, local API behavior, saved-review recovery and static assets. HTTP integration tests bind a loopback port; the PDF test requires the installed `pdfjs-dist` dependency. Tests inject model responses and do not require an API key. Client state tests are not browser layout checks.
 
-Keep the primary actions visible and lightweight. Put deeper actions (view exact wording, see related points, add a note, mark as a dealbreaker) behind the relevant response so the first decision stays quick. Avoid implying that a reaction changes or negotiates the policy.
+The GitHub Actions workflow runs installation, the full suite and the build on pull requests and pushes to `main` using Node 22. It does not run live model evaluations.
 
-### Pacing and checkpoints
+The build copies the runtime assets and saved policies into ignored `app/dist/`, removing stale generated files first. The resulting static site supports saved-policy reviews. Own-policy intake and rewording require the Node API.
 
-- Begin with a topic map and an estimate of the review, including how many high-priority points there are.
-- Group related points into short sections (for example, collection, sharing, retention, and user controls).
-- Offer a checkpoint after each section: reviewed, still to review, questions saved, and concerns flagged. Let people pause and return without losing their place.
-- Allow skipping lower-priority material while making skipped topics visible in the final report.
-
-### Preference onboarding
-
-Before review, invite people to pick the topics that matter most to them (such as location, sensitive data, targeted ads, sharing, retention, or deletion). Use those explicit choices to order or highlight relevant points and explain why a point is surfaced. Keep the full review available, make preferences editable, and never hide a point or infer that the person is comfortable with it.
-
-### Linked provisions
-
-Some points only make sense together: a permission may be limited by an exception elsewhere, or a defined term may change the scope of a clause. Keep each point independently readable, but show a clear “Related points” path with a short explanation of the relationship and source links. The report should preserve those links rather than treating every reaction as isolated.
-
-## Proposed first prototype
-
-Start with a consumer app privacy policy. Use an overview → preference setup → point review → section checkpoints → decision report flow. These are design proposals to validate, not shipped functionality or settled requirements.
-
-- Show document topics and review coverage before asking someone to navigate cards.
-- Prefer reactions such as **Comfortable**, **Need clarification**, and **Not comfortable**. Let clarification branch into simpler wording, an example, or a saved question; let discomfort optionally branch into a concern or potential dealbreaker. Recording a reaction does not amend or accept contractual terms.
-- Keep source text, document version, and uncertainty visible.
-- Preserve unresolved issues and dealbreakers instead of reducing them to one score.
-- Use editable, explicit preferences for emphasis; do not silently generalize one response to all contexts.
-
-## Next work
-
-1. Have the user try the redesigned entry flow and report where the path still feels busy or unclear.
-2. Refine the downstream topic map, claim cards, and report to match the quieter entry screens.
-3. Evaluate cross-clause relationships, category accuracy, and comprehension with real policies when UX direction is settled.
-
-The new local LLM tooling uses the OpenAI Responses API with structured outputs. The deployed browser app still uses its earlier keyword grouping. Keep API credentials and private policy files outside Git. See [tooling](tooling/README.md).
-
-## Reading modes and saved featured policies (November 18)
-
-The separate `codex/reading-modes-saved` worktree adds two reading paths. **User mode** selects a small set of plain-language takeaways, with exact source anchors and an explicit notice that remaining source units are not summarized. **Lawyer mode** keeps detailed clause-by-clause claims and exact-source fallbacks. Both retain the full policy. The topic screen offers a direct full-policy view and a path to change modes. Claims in either mode remain unverified paraphrases.
-
-The three homepage policies are saved as versioned JSON files in `app/data/featured/`, with both modes and the source text captured on November 18, 2026. Selecting one opens its saved user overview directly, with no fetch or model call. Changing modes reads the saved detailed analysis. These files are copied into `app/dist/` by the build, so the featured path does not need the local API. Their source date is shown in the interface because policies can change. To deliberately refresh the saved snapshots, run `npm run save-featured` with `OPENAI_API_KEY` in the process environment; pass a featured ID to refresh one policy. A failed refresh leaves its previous file intact.
-
-For policies people add themselves, the server still imports the source and calls the model. Model groups now run with up to four requests in parallel. The static hosted Site has not been updated with this worktree, and its own-policy LLM path still needs a server-backed deployment. See [the experiment record](portfolio-docs/experiments.md#e07--reading-modes-and-featured-policy-cache) for observed card counts and timing; these are engineering checks, not a measure of comprehension or legal fidelity.
+The older private hosted prototype is separate from this checkout. Building locally does not deploy it. No new deployment or reader comprehension study is recorded here.

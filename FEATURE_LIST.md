@@ -12,6 +12,7 @@ Status: **Local** = implemented in the local app; **Partial** = present but need
 | Progressive reading-depth choice | Local | Choose a featured policy or expand “Review my own policy,” then choose Quick overview or Detailed review before proceeding. Own-policy input shows the chosen depth and a Change action. |
 | Own-policy intake by upload, paste, or URL | Local | Upload accepts TXT, RTF, DOCX, and text-based PDF; paste and public HTTPS URL are supported. Scanned PDFs need OCR, which is not implemented. |
 | Source preview before analysis | Local | Shows extracted title, source, warnings, and expandable text so the reader can check the input. |
+| Public URL and local API safeguards | Local | DNS answers are checked and pinned per destination; downloads have size/time limits. The local API checks Host and Origin. Public deployment still needs its own authentication and request limits. |
 | Curated official-policy catalog | Local tooling | 15 pointers, including regional variants. A pointer does not guarantee automated fetching; sites can block it. |
 | More reliable policy extraction | Partial | HTML and supported files are handled with warnings. Improve blocked-site handling, regional/version detection, tables, and scanned PDFs as specific cases warrant. |
 
@@ -19,7 +20,7 @@ Status: **Local** = implemented in the local app; **Partial** = present but need
 
 | Feature | Status | What exists / next step |
 | --- | --- | --- |
-| LLM-assisted, source-linked claims | Local | The server proposes claims with exact source spans and optional neighboring context. Exact quote validation does **not** verify a paraphrase's meaning. |
+| LLM-assisted, source-linked claims | Local | The server proposes claims with exact source spans and optional neighboring context. Validators restrict claims to their assigned group and preserve good entries when another entry is malformed; model calls have deadlines. Exact quote validation does **not** verify a paraphrase's meaning. |
 | Quick overview (user mode) | Local, refine | Selects a handful of broad, plain-language themes for an operating understanding. It is intentionally selective; the UI states how many source units were not summarized and keeps the full policy available. Review outputs for repetition, readability, and missing major themes. |
 | Detailed review (lawyer mode) | Local, refine | Produces more granular, source-linked claims and exact-source fallback passages. It is not legal review. Card count can still be very high. |
 | Faster live decomposition | Local | Bounded model groups run concurrently, up to four requests. Measure and improve wait time on representative own-policy imports if needed. |
@@ -36,17 +37,17 @@ Status: **Local** = implemented in the local app; **Partial** = present but need
 | Personal reactions | Local | Accept/Reject record a reaction to the **claim**, not acceptance or rejection of a policy. Skip leaves the claim unfinished in the report. Revisit can change a reaction. |
 | AI rewording | Local, refine | Reword requests a shorter alternate wording from the server and marks the card as AI-reworded. The new wording remains unverified; compare it with the original. Consider whether people need examples or a question path after trying this interaction. |
 | Ambient card cues | Local, refine | Priority topics, Quick overview, and AI rewordings receive subtle card treatment. Check with readers whether these cues are noticeable and understandable without implying a risk score. |
-| Progress and section checkpoints | Local | Progress tracks handled cards; topic checkpoints and resume flow exist. Review whether checkpoint copy still fits the new Accept/Reject/Skip actions. |
+| Progress and section checkpoints | Local | Progress tracks handled cards; topic checkpoints and resume flow exist. Checkpoint copy keeps skipped claims unfinished rather than describing the entire topic as reviewed. |
 | Explicit topic preferences | Partial | Readers can choose topics to see first; selected topics affect order and card highlighting. Topic assignment still uses text matching and should not be interpreted as a risk rating. Preferences do not hide other content. |
 | Clarification questions, notes, and potential dealbreakers | Partial / revisit | Older saved responses and report fields support these, but the new minimal card does not offer an entry path. Earlier proposals included a saved question, optional concern note, and dealbreaker flag. Decide how to add them without crowding the card. |
-| Pause, resume, and browser persistence | Local | One review is saved in local storage at a time. Replacing or clearing it is explicit; private browsing or disabled storage can prevent recovery. |
+| Pause, resume, and browser persistence | Local | One review is saved in local storage at a time. Replacing or clearing it is explicit. Recovery validates saved cards and source ranges; invalid data stays stored with a recovery notice. Private browsing or disabled storage can prevent recovery. |
 
 ## Report and trust
 
 | Feature | Status | What exists / next step |
 | --- | --- | --- |
 | Personal report | Local, refine | Groups accepted, rejected, skipped/unreviewed, and older clarification responses; allows revisiting claims and adding a reflection. Align remaining legacy wording with the new card actions. |
-| Export and print | Local | Download a text report with claims, source passages, and full policy; browser print can save a PDF. |
+| Export and print | Local | Download a text report with claims, source passages, full policy, fetch date and scope when known. Browser print expands unfinished claims and restores disclosures afterward. |
 | Source access and provenance | Local, refine | A claim can open its location in the extracted policy; saved featured analyses display a fetch date. Make the source viewer easier to scan without turning the main card into a source panel. |
 | Honest limits | Local | AI claims are labeled unverified; Quick overview coverage is selective; full policy is available. Do not label output legally verified or silently treat old snapshots as current. |
 | Reader comprehension and usability study | Planned | Test whether the overview gives a working understanding, whether cards feel manageable, and whether people understand Accept/Reject, source cues, and skipped coverage. No such study has been run. |
